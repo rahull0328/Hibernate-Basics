@@ -399,3 +399,95 @@ List results = query.list();
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
 </div>
+
+## Q. Mention the Key components of Hibernate?
+
+**hibernate.cfg.xml**: This file has database connection details  
+
+**hbm.xml or Annotation**: Defines the database table mapping with POJO. Also defines the relation between tables in java way.  
+**SessionFactory**: 
+
+* There will be a session factory per database.
+* The SessionFacory is built once at start-up
+* It is a thread safe class
+* SessionFactory will create a new Session object when requested
+**Session**:  
+* The Session object will get physical connection to the database.
+* Session is the Java object used for any DB operations.
+* Session is not thread safe. Hence do not share hibernate session between threads
+* Session represents unit of work with database
+* Session should be closed once the task is completed
+
+## Q. Explain Session object in Hibernate?
+
+A Session is used to get a physical connection with a database. The Session object is lightweight and designed to be instantiated each time an interaction is needed with the database. Persistent objects are saved and retrieved through a Session object.
+
+The lifecycle of a Session is bounded by the beginning and end of a logical transaction. The main function of the Session is to offer create, read and delete operations for instances of mapped entity classes. Instances may exist in one of three states:
+
+* **transient** − A new instance of a persistent class, which is not associated with a Session and has no representation in the database and no identifier value is considered transient by Hibernate.
+
+* **persistent** − You can make a transient instance persistent by associating it with a Session. A persistent instance has a representation in the database, an identifier value and is associated with a Session.
+
+* **detached** − Once we close the Hibernate Session, the persistent instance will become a detached instance.
+
+```java
+Session session = factory.openSession();
+Transaction tx = null;
+
+try {
+   tx = session.beginTransaction();
+   // do some work
+   ...
+   tx.commit();
+}
+
+catch (Exception e) {
+   if (tx!=null) tx.rollback();
+   e.printStackTrace(); 
+} finally {
+   session.close();
+}
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. How transaction management works in Hibernate?
+
+A **Transaction** is a sequence of operation which works as an atomic unit. A transaction only completes if all the operations completed successfully. A transaction has the Atomicity, Consistency, Isolation, and Durability properties (ACID).
+
+In hibernate framework, **Transaction interface** that defines the unit of work. It maintains abstraction from the transaction implementation (JTA, JDBC). A transaction is associated with Session and instantiated by calling **session.beginTransaction()**.
+
+
+|Transaction interface      | Description              |
+|---------------------------|--------------------------|
+|void begin()               |starts a new transaction. |
+|void commit()              |ends the unit of work unless we are in FlushMode.NEVER.|
+|void rollback()            |forces this transaction to rollback.|
+|void setTimeout(int seconds)| It sets a transaction timeout for any transaction started by a subsequent call to begin on this |instance.|
+|boolean isAlive()          |checks if the transaction is still alive.|
+|void registerSynchronization(Synchronization s) |registers a user synchronization callback for this transaction.|
+|boolean wasCommited()      |checks if the transaction is commited successfully.|
+|boolean wasRolledBack()    |checks if the transaction is rolledback successfully.|
+
+Example:
+
+```java
+Transaction transObj = null;
+Session sessionObj = null;
+try {
+    sessionObj = HibernateUtil.buildSessionFactory().openSession();
+    transObj = sessionObj.beginTransaction();
+ 
+    //Perform Some Operation Here
+    transObj.commit();
+} catch (HibernateException exObj) {
+    if(transObj!=null){
+        transObj.rollback();
+    }
+    exObj.printStackTrace(); 
+} finally {
+    sessionObj.close(); 
+}
+```
