@@ -741,3 +741,190 @@ public class ManageEmployee {
       /* Print Total salary */
       ME.totalSalary();
    }
+
+   /* Method to CREATE an employee in the database */
+   public Integer addEmployee(String fname, String lname, int salary){
+      Session session = factory.openSession();
+      Transaction tx = null;
+      Integer employeeID = null;
+      
+      try {
+         tx = session.beginTransaction();
+         Employee employee = new Employee(fname, lname, salary);
+         employeeID = (Integer) session.save(employee); 
+         tx.commit();
+      } catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace(); 
+      } finally {
+         session.close(); 
+      }
+      return employeeID;
+   }
+
+   /* Method to  READ all the employees having salary more than 2000 */
+   public void listEmployees( ) {
+      Session session = factory.openSession();
+      Transaction tx = null;
+      
+      try {
+         tx = session.beginTransaction();
+         Criteria cr = session.createCriteria(Employee.class);
+         // Add restriction.
+         cr.add(Restrictions.gt("salary", 2000));
+         List employees = cr.list();
+
+         for (Iterator iterator = employees.iterator(); iterator.hasNext();){
+            Employee employee = (Employee) iterator.next(); 
+            System.out.print("First Name: " + employee.getFirstName()); 
+            System.out.print("  Last Name: " + employee.getLastName()); 
+            System.out.println("  Salary: " + employee.getSalary()); 
+         }
+         tx.commit();
+      } catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace(); 
+      } finally {
+         session.close(); 
+      }
+   }
+   
+   /* Method to print total number of records */
+   public void countEmployee(){
+      Session session = factory.openSession();
+      Transaction tx = null;
+      
+      try {
+         tx = session.beginTransaction();
+         Criteria cr = session.createCriteria(Employee.class);
+
+         // To get total row count.
+         cr.setProjection(Projections.rowCount());
+         List rowCount = cr.list();
+
+         System.out.println("Total Coint: " + rowCount.get(0) );
+         tx.commit();
+      } catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace(); 
+      } finally {
+         session.close(); 
+      }
+   }
+  
+   /* Method to print sum of salaries */
+   public void totalSalary(){
+      Session session = factory.openSession();
+      Transaction tx = null;
+      
+      try {
+         tx = session.beginTransaction();
+         Criteria cr = session.createCriteria(Employee.class);
+
+         // To get total salary.
+         cr.setProjection(Projections.sum("salary"));
+         List totalSalary = cr.list();
+
+         System.out.println("Total Salary: " + totalSalary.get(0) );
+         tx.commit();
+      } catch (HibernateException e) {
+         if (tx!=null) tx.rollback();
+         e.printStackTrace(); 
+      } finally {
+         session.close(); 
+      }
+   }
+}
+```
+
+Output
+
+```java
+cmd> java ManageEmployee
+.......VARIOUS LOG MESSAGES WILL DISPLAY HERE........
+
+First Name: Daisy  Last Name: Das  Salary: 5000
+First Name: John  Last Name: Paul  Salary: 5000
+First Name: Mohd  Last Name: Yasee  Salary: 3000
+Total Coint: 4
+Total Salary: 15000
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. What is a One-to-One association in Hibernate?
+
+A **One-to-One** Association is similar to Many-to-One association with a difference that the column will be set as unique i.e. Two entities are said to be in a One-to-One relationship if one entity has only one occurrence in the other entity. For example, an address object can be associated with a single employee object. However, these relationships are rarely used in the relational table models and therefore, we won’t need this mapping too often.
+
+In One-to-One association, the source entity has a field that references another target entity. The `@OneToOne` JPA annotation is used to map the source entity with the target entity.
+
+Example: Hibernate One to One Mapping Annotation  
+
+**hibernate-annotation.cfg.xml:**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">dbpassword</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/TestDB</property>
+        <property name="hibernate.connection.username">dbusername</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        
+        <property name="hibernate.current_session_context_class">thread</property>
+        <property name="hibernate.show_sql">true</property>
+        
+        <mapping class="com.example.hibernate.model.Txn1"/>
+        <mapping class="com.example.hibernate.model.Customer1"/>
+    </session-factory>
+</hibernate-configuration>
+```
+
+For hibernate one to one mapping annotation configuration, model classes are the most important part.
+
+```java
+package com.example.hibernate.model;
+
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import org.hibernate.annotations.Cascade;
+
+@Entity
+@Table(name="TRANSACTION")
+public class Txn1 {
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column(name="txn_id")
+	private long id;
+	
+	@Column(name="txn_date")
+	private Date date;
+	
+	@Column(name="txn_total")
+	private double total;
+	
+	@OneToOne(mappedBy="txn")
+	@Cascade(value=org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+	private Customer1 customer;
+	
+	@Override
+	public String toString(){
+		return id+", "+total+", "+customer.getName()+", "+customer.getEmail()+", "+customer.getAddress();
+	}
+
+        //Getter-Setter methods, omitted for clarity 
+}
+```
