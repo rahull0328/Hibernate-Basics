@@ -928,3 +928,288 @@ public class Txn1 {
         //Getter-Setter methods, omitted for clarity 
 }
 ```
+
+```java
+
+package com.example.hibernate.model;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+
+@Entity
+@Table(name="CUSTOMER")
+public class Customer1 {
+
+	@Id
+	@Column(name="txn_id", unique=true, nullable=false)
+	@GeneratedValue(generator="gen")
+	@GenericGenerator(name="gen", strategy="foreign", parameters={@Parameter(name="property", value="txn")})
+	private long id;
+	
+	@Column(name="cust_name")
+	private String name;
+	
+	@Column(name="cust_email")
+	private String email;
+	
+	@Column(name="cust_address")
+	private String address;
+	
+	@OneToOne
+	@PrimaryKeyJoinColumn
+	private Txn1 txn;
+
+        //Getter-Setter methods
+}
+```
+
+**Hibernate SessionFactory Utility class:**
+
+```java
+
+package com.example.hibernate.util;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+
+public class HibernateAnnotationUtil {
+
+	private static SessionFactory sessionFactory;
+	
+	private static SessionFactory buildSessionFactory() {
+        try {
+            // Create the SessionFactory from hibernate-annotation.cfg.xml
+        	Configuration configuration = new Configuration();
+        	configuration.configure("hibernate-annotation.cfg.xml");
+        	System.out.println("Hibernate Annotation Configuration loaded");
+        	
+        	ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
+        	System.out.println("Hibernate Annotation serviceRegistry created");
+        	
+        	SessionFactory sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+        	
+            return sessionFactory;
+        }
+        catch (Throwable ex) {
+            System.err.println("Initial SessionFactory creation failed." + ex);
+            ex.printStackTrace();
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+	
+	public static SessionFactory getSessionFactory() {
+		if(sessionFactory == null) sessionFactory = buildSessionFactory();
+        return sessionFactory;
+    }
+}
+```
+
+**Hibernate One to One Mapping Annotation Example Test Program:**
+
+```java
+
+package com.example.hibernate.main;
+
+import java.util.Date;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
+import com.example.hibernate.model.Customer1;
+import com.example.hibernate.model.Txn1;
+import com.example.hibernate.util.HibernateAnnotationUtil;
+
+public class HibernateOneToOneAnnotationMain {
+
+	public static void main(String[] args) {
+		
+		Txn1 txn = buildDemoTransaction();
+		
+		SessionFactory sessionFactory = null;
+		Session session = null;
+		Transaction tx = null;
+		try{
+		//Get Session
+		sessionFactory = HibernateAnnotationUtil.getSessionFactory();
+		session = sessionFactory.getCurrentSession();
+		System.out.println("Session created using annotations configuration");
+		//start transaction
+		tx = session.beginTransaction();
+		//Save the Model object
+		session.save(txn);
+		//Commit transaction
+		tx.commit();
+		System.out.println("Annotation Example. Transaction ID="+txn.getId());
+		
+		//Get Saved Trasaction Data
+		printTransactionData(txn.getId(), sessionFactory);
+		}catch(Exception e){
+			System.out.println("Exception occured. "+e.getMessage());
+			e.printStackTrace();
+		}finally{
+			if(sessionFactory != null && !sessionFactory.isClosed()){
+				System.out.println("Closing SessionFactory");
+				sessionFactory.close();
+			}
+		}
+	}
+
+	private static void printTransactionData(long id, SessionFactory sessionFactory) {
+		Session session = null;
+		Transaction tx = null;
+		try{
+			//Get Session
+			sessionFactory = HibernateAnnotationUtil.getSessionFactory();
+			session = sessionFactory.getCurrentSession();
+			//start transaction
+			tx = session.beginTransaction();
+			//Save the Model object
+			Txn1 txn = (Txn1) session.get(Txn1.class, id);
+			//Commit transaction
+			tx.commit();
+			System.out.println("Annotation Example. Transaction Details=\n"+txn);
+			
+			}catch(Exception e){
+				System.out.println("Exception occured. "+e.getMessage());
+				e.printStackTrace();
+			}
+	}
+
+	private static Txn1 buildDemoTransaction() {
+		Txn1 txn = new Txn1();
+		txn.setDate(new Date());
+		txn.setTotal(100);
+		
+		Customer1 cust = new Customer1();
+		cust.setAddress("San Jose, USA");
+		cust.setEmail("Alex@yahoo.com");
+		cust.setName("Alex Kr");
+		
+		txn.setCustomer(cust);
+		
+		cust.setTxn(txn);
+		return txn;
+	}
+}
+```
+
+Output
+
+```java
+Hibernate Annotation Configuration loaded
+Hibernate Annotation serviceRegistry created
+Session created using annotations configuration
+Hibernate: insert into TRANSACTION (txn_date, txn_total) values (?, ?)
+Hibernate: insert into CUSTOMER (cust_address, cust_email, cust_name, txn_id) values (?, ?, ?, ?)
+Annotation Example. Transaction ID=20
+Hibernate: select txn1x0_.txn_id as txn_id1_1_0_, txn1x0_.txn_date as txn_date2_1_0_, txn1x0_.txn_total as txn_tota3_1_0_, 
+customer1x1_.txn_id as txn_id1_0_1_, customer1x1_.cust_address as cust_add2_0_1_, customer1x1_.cust_email as cust_ema3_0_1_, 
+customer1x1_.cust_name as cust_nam4_0_1_ from TRANSACTION txn1x0_ left outer join CUSTOMER customer1x1_ on 
+txn1x0_.txn_id=customer1x1_.txn_id where txn1x0_.txn_id=?
+Annotation Example. Transaction Details=
+20, 100.0, Alex Kr, Alex@yahoo.com, San Jose, USA
+Closing SessionFactory
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. What is hibernate caching? Explain Hibernate first level cache?
+
+Hibernate Cache can be very useful in gaining fast application performance if used correctly. The idea behind cache is to reduce the number of database queries, hence reducing the throughput time of the application.
+
+Hibernate comes with different types of Cache:
+
+**First Level Cache**: Hibernate first level cache is associated with the **Session object**. Hibernate uses this cache by default. Here, it processes one transaction after another one, means wont process one transaction many times. Mainly it reduces the number of SQL queries it needs to generate within a given transaction. That is instead of updating after every modification done in the transaction, it updates the transaction only at the end of the transaction.
+
+**Second Level Cache**: Second-level cache always associates with the **Session Factory object**. While running the transactions, in between it loads the objects at the Session Factory level, so that those objects will be available to the entire application, not bound to single user. Since the objects are already loaded in the cache, whenever an object is returned by the query, at that time no need to go for a database transaction. In this way the second level cache works. Here we can use query level cache also.
+
+Hibernate Second Level cache is disabled by default but we can enable it through configuration. Currently EHCache and Infinispan provides implementation for Hibernate Second level cache and we can use them. We will look into this in the next tutorial for hibernate caching.
+
+**Query Cache**: Hibernate can also cache result set of a query. Hibernate Query Cache doesn’t cache the state of the actual entities in the cache; it caches only identifier values and results of value type. So it should always be used in conjunction with the second-level cache.
+
+Example: Hibernate Caching – First Level Cache
+
+```java
+
+package com.example.hibernate.main;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
+import com.example.hibernate.model.Employee;
+import com.example.hibernate.util.HibernateUtil;
+
+public class HibernateCacheExample {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+		Session session = sessionFactory.getCurrentSession();
+		Transaction tx = session.beginTransaction();
+		
+		//Get employee with id=1
+		Employee emp = (Employee) session.load(Employee.class, new Long(1));
+		printData(emp,1);
+		
+		//waiting for sometime to change the data in backend
+		Thread.sleep(10000);
+		
+		//Fetch same data again, check logs that no query fired
+		Employee emp1 = (Employee) session.load(Employee.class, new Long(1));
+		printData(emp1,2);
+		
+		//Create new session
+		Session newSession = sessionFactory.openSession();
+		//Get employee with id=1, notice the logs for query
+		Employee emp2 = (Employee) newSession.load(Employee.class, new Long(1));
+		printData(emp2,3);
+		
+		//START: evict example to remove specific object from hibernate first level cache
+		//Get employee with id=2, first time hence query in logs
+		Employee emp3 = (Employee) session.load(Employee.class, new Long(2));
+		printData(emp3,4);
+		
+		//evict the employee object with id=1
+		session.evict(emp);
+		System.out.println("Session Contains Employee with id=1?"+session.contains(emp));
+
+		//since object is removed from first level cache, you will see query in logs
+		Employee emp4 = (Employee) session.load(Employee.class, new Long(1));
+		printData(emp4,5);
+		
+		//this object is still present, so you won't see query in logs
+		Employee emp5 = (Employee) session.load(Employee.class, new Long(2));
+		printData(emp5,6);
+		//END: evict example
+		
+		//START: clear example to remove everything from first level cache
+		session.clear();
+		Employee emp6 = (Employee) session.load(Employee.class, new Long(1));
+		printData(emp6,7);
+		Employee emp7 = (Employee) session.load(Employee.class, new Long(2));
+		printData(emp7,8);
+		
+		System.out.println("Session Contains Employee with id=2?"+session.contains(emp7));
+		
+		tx.commit();
+		sessionFactory.close();
+	}
+
+	private static void printData(Employee emp, int count) {
+		System.out.println(count+":: Name="+emp.getName()+", Zipcode="+emp.getAddress().getZipcode());
+	}
+}
+```
