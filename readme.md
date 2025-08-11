@@ -1213,3 +1213,193 @@ public class HibernateCacheExample {
 	}
 }
 ```
+
+Output
+
+```java
+Hibernate Configuration loaded
+Hibernate serviceRegistry created
+Hibernate: select employee0_.emp_id as emp_id1_1_0_, employee0_.emp_name as emp_name2_1_0_, employee0_.emp_salary as emp_sala3_1_0_, address1_.emp_id as emp_id1_0_1_, address1_.address_line1 as address_2_0_1_, address1_.city as city3_0_1_, address1_.zipcode as zipcode4_0_1_ from EMPLOYEE employee0_ left outer join ADDRESS address1_ on employee0_.emp_id=address1_.emp_id where employee0_.emp_id=?
+1:: Name=Alex, Zipcode=95129
+2:: Name=Alex, Zipcode=95129
+Hibernate: select employee0_.emp_id as emp_id1_1_0_, employee0_.emp_name as emp_name2_1_0_, employee0_.emp_salary as emp_sala3_1_0_, address1_.emp_id as emp_id1_0_1_, address1_.address_line1 as address_2_0_1_, address1_.city as city3_0_1_, address1_.zipcode as zipcode4_0_1_ from EMPLOYEE employee0_ left outer join ADDRESS address1_ on employee0_.emp_id=address1_.emp_id where employee0_.emp_id=?
+3:: Name=AlexK, Zipcode=95129
+Hibernate: select employee0_.emp_id as emp_id1_1_0_, employee0_.emp_name as emp_name2_1_0_, employee0_.emp_salary as emp_sala3_1_0_, address1_.emp_id as emp_id1_0_1_, address1_.address_line1 as address_2_0_1_, address1_.city as city3_0_1_, address1_.zipcode as zipcode4_0_1_ from EMPLOYEE employee0_ left outer join ADDRESS address1_ on employee0_.emp_id=address1_.emp_id where employee0_.emp_id=?
+4:: Name=David, Zipcode=95051
+Session Contains Employee with id=1?false
+Hibernate: select employee0_.emp_id as emp_id1_1_0_, employee0_.emp_name as emp_name2_1_0_, employee0_.emp_salary as emp_sala3_1_0_, address1_.emp_id as emp_id1_0_1_, address1_.address_line1 as address_2_0_1_, address1_.city as city3_0_1_, address1_.zipcode as zipcode4_0_1_ from EMPLOYEE employee0_ left outer join ADDRESS address1_ on employee0_.emp_id=address1_.emp_id where employee0_.emp_id=?
+5:: Name=Alex, Zipcode=95129
+6:: Name=David, Zipcode=95051
+Hibernate: select employee0_.emp_id as emp_id1_1_0_, employee0_.emp_name as emp_name2_1_0_, employee0_.emp_salary as emp_sala3_1_0_, address1_.emp_id as emp_id1_0_1_, address1_.address_line1 as address_2_0_1_, address1_.city as city3_0_1_, address1_.zipcode as zipcode4_0_1_ from EMPLOYEE employee0_ left outer join ADDRESS address1_ on employee0_.emp_id=address1_.emp_id where employee0_.emp_id=?
+7:: Name=Alex, Zipcode=95129
+Hibernate: select employee0_.emp_id as emp_id1_1_0_, employee0_.emp_name as emp_name2_1_0_, employee0_.emp_salary as emp_sala3_1_0_, address1_.emp_id as emp_id1_0_1_, address1_.address_line1 as address_2_0_1_, address1_.city as city3_0_1_, address1_.zipcode as zipcode4_0_1_ from EMPLOYEE employee0_ left outer join ADDRESS address1_ on employee0_.emp_id=address1_.emp_id where employee0_.emp_id=?
+8:: Name=David, Zipcode=95051
+Session Contains Employee with id=2?true
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. What is second level cache in Hibernate?
+
+**Hibernate second level cache** uses a common cache for all the session object of a session factory. It is useful if you have multiple session objects from a session factory. **SessionFactory** holds the second level cache data. It is global for all the session objects and not enabled by default.
+
+Different vendors have provided the implementation of Second Level Cache.
+
+* EH Cache
+* OS Cache
+* Swarm Cache
+* JBoss Cache
+
+Each implementation provides different cache usage functionality. There are four ways to use second level cache.
+
+* **read-only**: caching will work for read only operation.
+* **nonstrict-read-write**: caching will work for read and write but one at a time.
+* **read-write**: caching will work for read and write, can be used simultaneously.
+* **transactional**: caching will work for transaction.
+
+The cache-usage property can be applied to class or collection level in hbm.xml file.
+
+```xml
+<cache usage="read-only" />  
+```
+
+Example: Hibernate Second Level Cache
+
+Step 01: Create the persistent class using Maven
+
+```java
+package com.example;    
+import javax.persistence.*;  
+import org.hibernate.annotations.Cache;  
+import org.hibernate.annotations.CacheConcurrencyStrategy;  
+@Entity  
+@Table(name="emp1012")  
+@Cacheable  
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)  
+public class Employee {    
+    @Id  
+   private int id;    
+   private String name;    
+   private float salary;    
+
+   public Employee() {}    
+   public Employee(String name, float salary) {    
+       super();    
+       this.name = name;    
+       this.salary = salary;    
+   }  
+   public int getId() {  
+       return id;  
+   }  
+   public void setId(int id) {  
+       this.id = id;  
+   }  
+   public String getName() {  
+       return name;  
+   }  
+   public void setName(String name) {  
+       this.name = name;  
+   }  
+   public float getSalary() {  
+       return salary;  
+   }  
+   public void setSalary(float salary) {  
+       this.salary = salary;  
+   }    
+}    
+```
+
+Step 02: Add project information and configuration in pom.xml file.
+
+```xml
+<dependency>  
+    <groupId>org.hibernate</groupId>  
+    <artifactId>hibernate-core</artifactId>  
+    <version>5.2.16.Final</version>  
+</dependency>  
+      
+<dependency>  
+    <groupId>com.oracle</groupId>  
+    <artifactId>ojdbc14</artifactId>  
+    <version>10.2.0.4.0</version>  
+</dependency>  
+      
+<dependency>  
+    <groupId>net.sf.ehcache</groupId>  
+    <artifactId>ehcache</artifactId>  
+    <version>2.10.3</version>  
+</dependency>  
+         
+<dependency>  
+    <groupId>org.hibernate</groupId>  
+    <artifactId>hibernate-ehcache</artifactId>  
+    <version>5.2.16.Final</version>  
+</dependency>
+```
+
+Step 03: Create the Configuration file (hibernate.cfg.xml)
+
+```xml
+<?xml version='1.0' encoding='UTF-8'?>    
+<!DOCTYPE hibernate-configuration PUBLIC    
+          "-//Hibernate/Hibernate Configuration DTD 5.2.0//EN"    
+          "http://hibernate.sourceforge.net/hibernate-configuration-5.2.0.dtd">    
+    
+<hibernate-configuration>    
+    
+    <session-factory>    
+        <property name="show_sql">true</property>    
+        <property name="hbm2ddl.auto">update</property>    
+        <property name="dialect">org.hibernate.dialect.Oracle9Dialect</property>    
+        <property name="connection.url">jdbc:oracle:thin:@localhost:1521:xe</property>    
+        <property name="connection.username">system</property>    
+        <property name="connection.password">jtp</property>    
+        <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>    
+         
+         <property name="cache.use_second_level_cache">true</property>   
+         <property name="cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>  
+         <mapping class="com.example.Employee"/>  
+    </session-factory>    
+</hibernate-configuration>    
+```
+
+Step 04: Create the class that retrieves the persistent object
+
+```java
+package com.example;    
+    
+import org.hibernate.Session;    
+import org.hibernate.SessionFactory;  
+import org.hibernate.boot.Metadata;  
+import org.hibernate.boot.MetadataSources;  
+import org.hibernate.boot.registry.StandardServiceRegistry;  
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;  
+    
+public class FetchTest {    
+
+   public static void main(String[] args) {    
+
+       StandardServiceRegistry ssr = new StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();  
+       Metadata meta = new MetadataSources(ssr).getMetadataBuilder().build();  
+
+       SessionFactory factory = meta.getSessionFactoryBuilder().build();  
+
+       Session session1 = factory.openSession();    
+       Employee emp1 = (Employee)session1.load(Employee.class,121);    
+       System.out.println(emp1.getId()+" "+emp1.getName()+" "+emp1.getSalary());    
+       session1.close();    
+
+       Session session2 = factory.openSession();    
+       Employee emp2 = (Employee)session2.load(Employee.class,121);    
+       System.out.println(emp2.getId()+" "+emp2.getName()+" "+emp2.getSalary());    
+       session2.close();    
+
+   }    
+}    
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
