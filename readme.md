@@ -1403,3 +1403,156 @@ public class FetchTest {
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
 </div>
+
+## Q. What are concurrency strategies?
+
+The READ_WRITE strategy is an asynchronous cache concurrency mechanism and to prevent data integrity issues (e.g. stale cache entries), it uses a locking mechanism that provides unit-of-work isolation guarantees.
+
+In hibernate, cache concurrency strategy can be set globally using the property hibernate.cache. default_cache_concurrency_strategy. The allowed values are,
+
+* **read-only**: caching will work for read only operation. supported by ConcurrentHashMap, EHCache, Infinispan
+* **nonstrict-read-write**: caching will work for read and write but one at a time. supported by ConcurrentHashMap, EHCache.
+* **read-write**: caching will work for read and write, can be used simultaneously. supported by ConcurrentHashMap, EHCache.
+* **transactional**: caching will work for transaction. supported by EHCache, Infinispan.
+
+Example: Inserting data ( READ_WRITE strategy )
+
+```java
+@Override
+public boolean afterInsert(
+    Object key, Object value, Object version)
+        throws CacheException {
+    region().writeLock( key );
+    try {
+        final Lockable item =
+            (Lockable) region().get( key );
+        if ( item == null ) {
+            region().put( key,
+                new Item( value, version,
+                    region().nextTimestamp()
+                )
+            );
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    finally {
+        region().writeUnlock( key );
+    }
+}
+```
+
+For an entity to be cached upon insertion, it must use a SEQUENCE generator, the cache being populated by the EntityInsertAction:
+
+```java
+@Override
+public void doAfterTransactionCompletion(boolean success,
+    SessionImplementor session)
+    throws HibernateException {
+ 
+    final EntityPersister persister = getPersister();
+    if ( success && isCachePutEnabled( persister,
+        getSession() ) ) {
+            final CacheKey ck = getSession()
+               .generateCacheKey(
+                    getId(),
+                    persister.getIdentifierType(),
+                    persister.getRootEntityName() );
+ 
+            final boolean put = cacheAfterInsert(
+                persister, ck );
+        }
+    }
+    postCommitInsert( success );
+}
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. What is Lazy loading in hibernate?
+
+Hibernate defaults to a lazy fetching strategy for all entities and collections. Lazy loading in hibernate improves the performance. It loads the child objects on demand. To enable lazy loading explicitly you must use **fetch = FetchType.LAZY** on a association which you want to lazy load when you are using hibernate annotations.
+
+Example:
+
+```java
+@OneToMany( mappedBy = "category", fetch = FetchType.LAZY )
+private Set<ProductEntity> products; 
+```
+## Q. Explain the persistent classes in Hibernate?
+
+Persistence class are simple POJO classes in an application. It works as implementation of the business application for example Employee, department etc. It is not necessary that all instances of persistence class are defined persistence.
+
+There are following main rules of persistent classes
+
+* A persistence class should have a default constructor.
+* A persistence class should have an id to uniquely identify the class objects.
+* All attributes should be declared private.
+* Public getter and setter methods should be defined to access the class attributes.
+
+```java
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.util.Date;
+
+@Entity
+@Table(name = "employee")
+public class Employee {
+    @Id
+    @GeneratedValue
+    @Column(name = "emp_id")
+    private int id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "salary")
+    private int salary;
+
+    @Column(name = "date_of_join")
+    private Date dateOfJoin;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getSalary() {
+        return salary;
+    }
+
+    public void setSalary(int salary) {
+        this.salary = salary;
+    }
+
+    public Date getDateOfJoin() {
+        return dateOfJoin;
+    }
+
+    public void setDateOfJoin(Date dateOfJoin) {
+        this.dateOfJoin = dateOfJoin;
+    }
+}
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
