@@ -1556,3 +1556,148 @@ public class Employee {
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
 </div>
+
+## Q. Explain some of the elements of hbm.xml?
+
+Hibernate mapping file is used by hibernate framework to get the information about the mapping of a POJO class and a database table.
+
+It mainly contains the following mapping information:
+
+* Mapping information of a POJO class name to a database table name.
+* Mapping information of POJO class properties to database table columns.
+
+Elements of the Hibernate mapping file:
+
+* **hibernate-mapping**: It is the root element.
+* **Class**: It defines the mapping of a POJO class to a database table.
+* **Id**: It defines the unique key attribute or primary key of the table.
+* **generator**: It is the sub element of the id element. It is used to automatically generate the id.
+* **property**: It is used to define the mapping of a POJO class property to database table column.
+
+Syntax
+
+```xml
+<hibernate-mapping>
+ 
+ <class name="POJO class name" table="table name in database">
+  <id name="propertyName" column="columnName" type="propertyType" >
+	<generator class="generatorClass"/>
+  </id>
+  <property name="propertyName1" column="colName1" type="propertyType " />
+  <property name="propertyName2" column="colName2" type="propertyType " />
+   . . . . .
+ </class>
+ 
+</hibernate-mapping>
+```
+
+## Q. What is Java Persistence API (JPA)?
+
+Java Persistence API is a collection of classes and methods to persistently store the vast amounts of data into a database.
+The Java Persistence API (JPA) is one possible approach to ORM. Via JPA the developer can map, store, update and retrieve data from relational databases to Java objects and vice versa. JPA can be used in Java-EE and Java-SE applications.
+
+JPA metadata is typically defined via annotations in the Java class. Alternatively, the metadata can be defined via XML or a combination of both. A XML configuration overwrites the annotations.
+
+**Relationship Mapping:**
+
+JPA allows to define relationships between classes. Classes can have one to one, one to many, many to one, and many to many relationships with other classes. A relationship can be bidirectional or unidirectional, e.g. in a bidirectional relationship both classes store a reference to each other while in an unidirectional case only one class has a reference to the other class. 
+
+Relationship annotations:
+
+* @OneToOne
+* @OneToMany
+* @ManyToOne
+* @ManyToMany
+
+![Java Exception](https://github.com/learning-zone/java-interview-questions/blob/master/assets/jpa_class_level_architecture.png)
+
+**JPA - Architecture:**
+
+|Units	                |Description                                                    |
+|-----------------------|---------------------------------------------------------------|
+|EntityManagerFactory	|This is a factory class of EntityManager. It creates and manages multiple EntityManager instances.|
+|EntityManager	        |It is an Interface, it manages the persistence operations on objects. It works like factory for Query instance.|
+|Entity	                |Entities are the persistence objects, stores as records in the database.|
+|EntityTransaction	    |It has one-to-one relationship with EntityManager. For each EntityManager, operations are maintained by EntityTransaction class.|
+|Persistence	        |This class contain static methods to obtain EntityManagerFactory instance.|
+|Query	                |This interface is implemented by each JPA vendor to obtain relational objects that meet the criteria.|
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. Name some important interfaces of Hibernate framework?
+
+* **Session Interface**: This is the primary interface used by hibernate applications
+The instances of this interface are lightweight and are inexpensive to create and destroy
+Hibernate sessions are not thread safe
+
+* **Session Factory Interface**: This is a factory that delivers the session objects to hibernate application.
+
+* **Configuration Interface**: This interface is used to configure and bootstrap hibernate.
+The instance of this interface is used by the application in order to specify the location of hbm documents
+
+* **Transaction Interface**: This interface abstracts the code from any kind of transaction implementations such as JDBC transaction, JTA transaction
+
+* **Query and Criteria Interface**: This interface allows the user to perform queries and also control the flow of the query execution
+
+## Q. What is Hibernate SessionFactory and how to configure it?
+
+SessionFactory can be created by providing Configuration object, which will contain all DB related property details pulled from either hibernate.cfg.xml file or hibernate.properties file. SessionFactory is a factory for Session objects.
+
+We can create one SessionFactory implementation per database in any application. If your application is referring to multiple databases, then we need to create one SessionFactory per database.
+
+The SessionFactory is a heavyweight object; it is usually created during application start up and kept for later use. The SessionFactory is a thread safe object and used by all the threads of an application.
+
+```java
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+ 
+import com.example.model.Employee;
+ 
+public class HibernateUtil {
+ 
+    private static SessionFactory sessionFactory = null;
+ 
+    static {
+        try {
+            loadSessionFactory();
+        } catch(Exception e){
+            System.err.println("Exception while initializing hibernate util.. ");
+            e.printStackTrace();
+        }
+    }
+ 
+    public static void loadSessionFactory() {
+ 
+        Configuration configuration = new Configuration();
+        configuration.configure("/j2n-hibernate.cfg.xml");
+        configuration.addAnnotatedClass(Employee.class);
+        ServiceRegistry srvcReg = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
+        sessionFactory = configuration.buildSessionFactory(srvcReg);
+    }
+ 
+    public static Session getSession() throws HibernateException {
+ 
+        Session retSession=null;
+            try {
+                retSession = sessionFactory.openSession();
+            } catch(Throwable t) {
+                System.err.println("Exception while getting session.. ");
+                t.printStackTrace();
+            }
+            if(retSession == null) {
+                System.err.println("session is discovered null");
+            }
+            return retSession;
+    }
+}
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
