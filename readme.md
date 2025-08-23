@@ -1701,3 +1701,154 @@ public class HibernateUtil {
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
 </div>
+
+## Q. What is the difference between opensession and getcurrentsession in hibernate?
+
+Hibernate SessionFactory getCurrentSession() method returns the session bound to the context. Since this session object belongs to the hibernate context, we don't need to close it. Once the session factory is closed, this session object gets closed.
+
+Hibernate SessionFactory openSession() method always opens a new session. We should close this session object once we are done with all the database operations.
+
+|Parameter          |openSession        |getCurrentSession               |
+|-------------------|-------------------|--------------------------------|
+|Session object     |It always create new Session object |It creates a new Session if not exists , else use same session which is in current hibernate context|
+|Flush and close    |You need to explicitly flush and close session objects|You do not need to flush and close session objects, it will be automatically taken care by Hibernate internally|
+|Performance        |In single threaded environment , It is slower than getCurrentSession|In single threaded environment , It is faster than getOpenSession|
+|Configuration      |You do not need to configure any property to call this method|You need to configure additional property “hibernate.current_session_context_class” to call getCurrentSession method, otherwise it will throw exceptions.|
+
+Example: openSession()
+
+```java
+Transaction transaction = null;
+Session session = HibernateUtil.getSessionFactory().openSession();
+try {
+    transaction = session.beginTransaction();
+    // do Some work
+    
+    session.flush(); // extra work
+    transaction.commit();            
+} catch(Exception ex) {            
+    if(transaction != null) {
+        transaction.rollback();
+    }
+    ex.printStackTrace();
+} finally {
+    if(session != null) {
+        session.close(); // extra work    
+    }            
+}           
+```
+
+Example: getCurrentSession()
+
+```java
+Transaction transaction = null;
+Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+try {
+    transaction = session.beginTransaction();
+    // do Some work
+   
+    // session.flush(); // no need
+    transaction.commit();           
+} catch(Exception ex) {           
+    if(transaction != null) {
+        transaction.rollback();
+    }
+    ex.printStackTrace();
+} finally {
+    if(session != null) {
+        // session.close(); // no need   
+    }           
+}     
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. What is difference between Hibernate Session get() and load() method?
+
+Hibernate Session class provides two method to access object e.g. `session.get()` and `session.load()`.The difference between get() vs load() method is that get() involves database hit if object doesn't exists in **Session Cache** and returns a fully initialized object which may involve several database call while load method can return proxy in place and only initialize the object or hit the database if any method other than getId() is called on persistent or entity object. This lazy initialization can save couple of database round-trip which result in better performance.
+
+|load() 	                                    |get() 
+|-----------------------------------------------|-------------------------------------------------
+|Only use the load() method if you are sure that the object exists.|If you are not sure that the object exists, then use one of the get() methods.| 
+|load() method will throw an exception if the unique id is not found in the database.|get() method will return null if the unique id is not found in the database.| 
+|load() just returns a proxy by default and database won't be hit until the proxy is first invoked.|get() will hit the database immediately.| 
+
+## Q. What are different states of an entity bean?
+
+The Entity bean has three states:
+
+**1. Transient**: Transient objects exist in heap memory. Hibernate does not manage transient objects or persist changes to transient objects. Whenever pojo class object created then it will be in the Transient state.
+
+Transient state Object does not represent any row of the database, It means not associated with any Session object or no relation with the database its just an normal object.
+
+**2. Persistent**: Persistent objects exist in the database, and Hibernate manages the persistence for persistent objects. If fields or properties change on a persistent object, Hibernate will keep the database representation up to date when the application marks the changes as to be committed.
+
+Any instance returned by a **get()** or **load()** method is persistent state object.
+
+**3. Detached**: Detached objects have a representation in the database, but changes to the object will not be reflected in the database, and vice-versa. A detached object can be created by closing the session that it was associated with, or by evicting it from the session with a call to the session's `evict()` method.
+
+Example:
+
+```java
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.AnnotationConfiguration;
+ 
+import com.example.hibernate.Student;
+ 
+public class ObjectStatesDemo {
+
+    public static void main(String[] args) {
+ 
+        // Transient object state
+        Student student = new Student();
+        student.setId(101);
+        student.setName("Alex");
+        student.setRoll("10");
+        student.setDegree("B.E");
+        student.setPhone("9999");
+
+        // Transient object state
+        Session session = new AnnotationConfiguration().configure()
+                .buildSessionFactory().openSession();
+        Transaction t = session.beginTransaction();
+
+        // Persistent object state
+        session.save(student);
+        t.commit();
+
+        // Detached object state
+        session.close();
+    }
+}
+```
+
+Output
+
+```java
+Hibernate: 
+    insert 
+    into
+        STUDENT
+        (degree, name, phone, roll, id) 
+    values
+        (?, ?, ?, ?, ?)
+```
+
+In The Database :
+
+```sql
+mysql> select * from student;
++-----+--------+--------+-------+------+
+| id  | degree | name   | phone | roll |
++-----+--------+--------+-------+------+
+| 101 | B.E    | Alex   | 9999  | 10   |
++-----+--------+--------+-------+------+
+1 row in set (0.05 sec)
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
