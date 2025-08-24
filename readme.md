@@ -1852,3 +1852,125 @@ mysql> select * from student;
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
 </div>
+
+## Q. What is difference between merge() and update() methods in Hibernate?
+
+Both update() and merge() methods in hibernate are used to convert the object which is in detached state into persistence state. But there are different situation where we should be used update() and where should be used merge() method in hibernate
+
+```java
+Employee emp1 = new Employee();
+emp1.setEmpId(100);
+emp1.setEmpName("Alex");
+//create session
+Session session1 = createNewHibernateSession();
+session1.saveOrUpdate(emp1);
+session1.close();
+//emp1 object in detached state now
+
+emp1.setEmpName("Alex Rajput");// Updated Name
+//Create session again
+Session session2 = createNewHibernateSession();
+Employee emp2 =(Employee)session2.get(Employee.class, 100);
+//emp2 object in persistent state with id 100
+
+/** 
+Try to make on detached object with id 100 to persistent state by using update method of hibernate
+It occurs the exception NonUniqueObjectException because emp2 object is having employee with same
+empid as 100. In order to avoid this exception we are using merge like given below instead of 
+**/
+session2.update(emp1);
+session.update(emp1);
+
+session2.merge(emp1); //it merge the object state with emp2
+session2.update(emp1); //Now it will work with exception
+```
+
+In the hibernate session we can maintain only one employee object in persistent state with same primary key, while converting a detached object into persistent, if already that session has a persistent object with the same primary key then hibernate throws an Exception whenever update() method is called to reattach a detached object with a session. In this case we need to call **merge()** method instead of **update()** so that hibernate copies the state changes from detached object into persistent object and we can say a detached object is converted into a persistent object.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+#### Q. What is difference between Hibernate save(), saveOrUpdate() and persist() methods?
+#### Q. What will happen if we don’t have no-args constructor in Entity bean?
+#### Q. What is difference between sorted collection and ordered collection, which one is better?
+#### Q. What are the collection types in Hibernate?
+#### Q. How to implement Joins in Hibernate?
+#### Q. Why we should not make Entity Class final?
+#### Q. What is the benefit of native sql query support in hibernate?
+#### Q. What is Named SQL Query? What are the benefits of Named SQL Query?
+#### Q. How to log hibernate generated sql queries in log files?
+#### Q. What is cascading and what are different types of cascading?
+#### Q. How to integrate log4j logging in hibernate application?
+#### Q. What is HibernateTemplate class?
+#### Q. How to integrate Hibernate with Servlet or Struts2 web applications?
+#### Q. Which design patterns are used in Hibernate framework?
+#### Q. What is Hibernate Validator Framework?
+#### Q. What is the benefit of Hibernate Tools Eclipse plugin?
+#### Q. What are the technologies that are supported by Hibernate?
+#### Q. What is your understanding of Hibernate proxy?
+#### Q. Can you explain Hibernate callback interfaces?
+#### Q. How to create database applications in Java with the use of Hibernate?
+#### Q. Can you share your views on mapping description files?
+#### Q. What are your thoughts on file mapping in Hibernate?
+#### Q. Can you explain version field?
+#### Q. What are your views on the function addClass?
+#### Q. Can you explain the role of addDirectory() and addjar() methods?
+#### Q. What do you understand by Hibernate tuning?
+#### Q. What is your understanding of Light Object Mapping?
+#### Q. How does Hibernate create the database connection?
+#### Q. What are possible ways to configure object-table mapping?
+#### Q. Which annotation is used to declare a class as a hibernate bean?
+#### Q. How do I specify table name linked to an entity using annotation?
+#### Q. How does a variable in an entity connect to the database column?
+#### Q. How do we specify a different column name for the variables mapping?
+#### Q. How do we specify a variable to be primary key for the table?
+#### Q. How do you configure the dialect in hibernate.cfg.xml?
+#### Q. How to configure the database URL and credentials in hibernate.cfg.xml?
+#### Q. How to configure the connection pool size?
+#### Q. How do you configure folder scan for Hibernate beans?
+#### Q. How to configure hibernate beans without Spring framework?
+#### Q. Is it possible to connect multiple database in a single Java application using Hibernate?
+#### Q. Does Hibernate support polymorphism?
+#### Q. How many Hibernate sessions exist at any point of time in an application?
+#### Q. What is N+1 SELECT problem in Hibernate? What are some strategies to solve the N+1 SELECT problem in Hibernate? 
+#### Q. What is the requirement for a Java object to become a Hibernate entity object? 
+#### Q. How do you log SQL queries issued by the Hibernate framework in Java application?
+#### Q. What is the difference between the transient, persistent and detached state in Hibernate? 
+#### Q. How properties of a class are mapped to the columns of a database table in Hibernate?
+#### Q. What is the usage of Configuration Interface in hibernate?
+#### Q. How can we use new custom interfaces to enhance functionality of built-in interfaces of hibernate?
+#### Q. What are POJOs and what is their significance?
+#### Q. How can we invoke stored procedures in hibernate?
+#### Q. What are the benefits of using Hibernate template?
+#### Q. How can we get hibernate statistics?
+#### Q. How can we reduce database write action times in Hibernate?
+#### Q. When an instance goes in detached state in hibernate?
+#### Q. What the four ORM levels are in hibernate?
+#### Q. What is the default cache service of hibernate?
+#### Q. What are the two mapping associations used in hibernate?
+#### Q. What is the usage of Hibernate QBC API?
+#### Q. In how many ways, objects can be fetched from database in hibernate?
+#### Q. How primary key is created by using hibernate?
+#### Q. How can we reattach any detached objects in Hibernate?
+#### Q. What are different ways to disable hibernate second level cache?
+#### Q. What is ORM metadata?
+#### Q. Which one is the default transaction factory in hibernate?
+#### Q. What is the role of JMX in hibernate?
+#### Q. In how many ways objects can be identified in Hibernate?
+#### Q. What different fetching strategies are of hibernate?
+#### Q. How mapping of java objects is done with database tables?
+#### Q. What are derived properties in hibernate?
+#### Q. What is the use of version property in hibernate?
+#### Q. What is attribute oriented programming?
+#### Q. What is the use of session.lock() in hibernate?
+#### Q. What the three inheritance models are of hibernate?
+#### Q. What is general hibernate flow using RDBMS?
+#### Q. What is difference between managed associations and hibernate associations?
+#### Q. What are the inheritance mapping strategies?
+#### Q. What is automatic dirty checking in hibernate?
+#### Q. Explain Hibernate configuration file and Hibernate mapping file?
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
