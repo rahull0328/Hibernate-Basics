@@ -1892,6 +1892,58 @@ In the hibernate session we can maintain only one employee object in persistent 
 </div>
 
 #### Q. What is difference between Hibernate save(), saveOrUpdate() and persist() methods?
+
+All three methods (`save()`, `saveOrUpdate()`, and `persist()`) are used to make an entity persistent in Hibernate, but they differ in their behavior, return values, and when they can be used. Below is a detailed comparison:
+
+|Method|Return Value|Usage|Behavior with Transient Entity|Behavior with Detached Entity|Exception Handling|
+|------|------------|-----|------------------------------|------------------------------|-------------------|
+|`save()`|Returns the generated identifier (Serializable)|Used to save a new entity or reattach a detached entity|Inserts the entity into the database and assigns an ID|If the entity has an ID, it may throw `NonUniqueObjectException` if another instance with the same ID is in the session|Throws exception if ID is already set and conflicts|
+|`saveOrUpdate()`|Returns void|Used when you don't know if the entity is transient or detached|Inserts the entity if transient|Updates the entity if detached|Handles both cases without exceptions|
+|`persist()`|Returns void|Used only for transient entities|Inserts the entity into the database|Throws `PersistenceException` if the entity is detached|Throws exception for detached entities|
+
+**Key Differences:**
+
+- **`save()`**: Always performs an insert operation and returns the ID. It can be used for both transient and detached entities, but for detached entities, it may lead to issues if the ID is already present in the session. It's part of the older Hibernate API.
+
+- **`saveOrUpdate()`**: Intelligently decides whether to insert or update based on the entity's state. If the entity is transient (no ID or ID is null), it inserts; if detached (ID is set), it updates. This method is more flexible and safer for mixed scenarios.
+
+- **`persist()`**: Only works with transient entities and does not return the ID. It's part of the JPA specification (via `EntityManager.persist()`). If called on a detached entity, it throws an exception. It's designed for pure insertion without side effects.
+
+**Example Usage:**
+
+```java
+Session session = sessionFactory.openSession();
+Transaction tx = session.beginTransaction();
+
+// Transient entity
+Employee emp = new Employee("John", 50000);
+
+// Using save()
+Serializable id = session.save(emp); // Inserts and returns ID
+
+// Using persist()
+session.persist(emp); // Inserts, no return value
+
+// Detached entity (after session close or evict)
+session.evict(emp); // emp is now detached
+
+// Using saveOrUpdate()
+session.saveOrUpdate(emp); // Updates the entity
+
+tx.commit();
+session.close();
+```
+
+**When to Use:**
+
+- Use `save()` when you need the generated ID immediately and are sure about the entity's state.
+- Use `saveOrUpdate()` for generic save operations where the entity might be new or modified.
+- Use `persist()` in JPA-compliant code for inserting new entities, ensuring no detached entities are passed.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 #### Q. What will happen if we don’t have no-args constructor in Entity bean?
 #### Q. What is difference between sorted collection and ordered collection, which one is better?
 #### Q. What are the collection types in Hibernate?
