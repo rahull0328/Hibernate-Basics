@@ -1945,6 +1945,102 @@ session.close();
 </div>
 
 #### Q. What will happen if we don’t have no-args constructor in Entity bean?
+
+In Hibernate (and JPA), an Entity bean (or entity class) must have a no-argument constructor (also known as a default constructor). This is a mandatory requirement for all JPA-compliant implementations, including Hibernate. If an entity class does not have a no-args constructor, Hibernate will throw an exception during runtime when attempting to instantiate the entity.
+
+**Why is a No-Args Constructor Required?**
+
+- **Reflection and Instantiation**: Hibernate uses Java Reflection API to create instances of entity classes. The `Class.newInstance()` method (or similar mechanisms in newer Java versions) requires a no-args constructor to instantiate objects without parameters.
+- **Proxy Generation**: For lazy loading and other Hibernate features, Hibernate may generate proxy subclasses of the entity. These proxies also need to call the no-args constructor of the superclass (the entity).
+- **JPA Specification**: The JPA specification explicitly states that all entity classes must have a public or protected no-argument constructor.
+
+**What Happens If We Don’t Have a No-Args Constructor?**
+
+If an entity class lacks a no-args constructor, Hibernate will fail to instantiate the entity, leading to runtime exceptions such as:
+
+- `InstantiationException`: Thrown when Hibernate tries to create an instance using reflection but cannot find a suitable constructor.
+- `NoSuchMethodException`: Indicates that the no-args constructor is missing.
+- `HibernateException` or `PersistenceException`: Wrapping the underlying reflection errors.
+
+These exceptions typically occur during operations like `session.get()`, `session.load()`, or when executing queries that return entity instances.
+
+**Example Scenario:**
+
+Consider an entity class without a no-args constructor:
+
+```java
+@Entity
+@Table(name = "employee")
+public class Employee {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String name;
+
+    // Parameterized constructor only
+    public Employee(String name) {
+        this.name = name;
+    }
+
+    // Getters and setters omitted for brevity
+}
+```
+
+When Hibernate tries to load this entity:
+
+```java
+Session session = sessionFactory.openSession();
+Employee emp = session.get(Employee.class, 1L); // This will fail
+```
+
+**Output/Error:**
+
+```
+org.hibernate.InstantiationException: Unable to instantiate default constructor for class com.example.Employee
+    at org.hibernate.tuple.PojoInstantiator.instantiate(PojoInstantiator.java:87)
+    ...
+Caused by: java.lang.NoSuchMethodException: com.example.Employee.<init>()
+    at java.lang.Class.getConstructor0(Class.java:3082)
+    ...
+```
+
+**How to Fix It:**
+
+Always provide a no-args constructor in your entity classes. It can be public or protected, but not private (as Hibernate needs to access it via reflection).
+
+```java
+@Entity
+@Table(name = "employee")
+public class Employee {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    private String name;
+
+    // No-args constructor (required)
+    public Employee() {
+    }
+
+    // Parameterized constructor (optional)
+    public Employee(String name) {
+        this.name = name;
+    }
+
+    // Getters and setters
+}
+```
+
+**Best Practices:**
+
+- Always include a no-args constructor in entity classes, even if you have parameterized constructors.
+- If using Lombok, you can use `@NoArgsConstructor` annotation to generate it automatically.
+- Avoid making the no-args constructor private, as it will prevent Hibernate from accessing it.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
 #### Q. What is difference between sorted collection and ordered collection, which one is better?
 #### Q. What are the collection types in Hibernate?
 #### Q. How to implement Joins in Hibernate?
