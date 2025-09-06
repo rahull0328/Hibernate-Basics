@@ -1891,7 +1891,7 @@ In the hibernate session we can maintain only one employee object in persistent 
     <b><a href="#">↥ back to top</a></b>
 </div>
 
-#### Q. What is difference between Hibernate save(), saveOrUpdate() and persist() methods?
+## Q. What is difference between Hibernate save(), saveOrUpdate() and persist() methods?
 
 All three methods (`save()`, `saveOrUpdate()`, and `persist()`) are used to make an entity persistent in Hibernate, but they differ in their behavior, return values, and when they can be used. Below is a detailed comparison:
 
@@ -1944,7 +1944,7 @@ session.close();
     <b><a href="#">↥ back to top</a></b>
 </div>
 
-#### Q. What will happen if we don’t have no-args constructor in Entity bean?
+## Q. What will happen if we don’t have no-args constructor in Entity bean?
 
 In Hibernate (and JPA), an Entity bean (or entity class) must have a no-argument constructor (also known as a default constructor). This is a mandatory requirement for all JPA-compliant implementations, including Hibernate. If an entity class does not have a no-args constructor, Hibernate will throw an exception during runtime when attempting to instantiate the entity.
 
@@ -2042,7 +2042,7 @@ public class Employee {
     <b><a href="#">↥ back to top</a></b>
 </div>
 
-#### Q. What is difference between sorted collection and ordered collection, which one is better?
+## Q. What is difference between sorted collection and ordered collection, which one is better?
 
 In Hibernate, collections can be sorted or ordered based on specific criteria. The key difference lies in **when and where** the sorting occurs: in the database (ordered) or in memory (sorted). Understanding these concepts helps in optimizing performance and choosing the right approach for your use case.
 
@@ -2140,82 +2140,220 @@ The SQL query will include `ORDER BY name ASC`, sorting at the database level.
     <b><a href="#">↥ back to top</a></b>
 </div>
 
-#### Q. What are the collection types in Hibernate?
-#### Q. How to implement Joins in Hibernate?
-#### Q. Why we should not make Entity Class final?
-#### Q. What is the benefit of native sql query support in hibernate?
-#### Q. What is Named SQL Query? What are the benefits of Named SQL Query?
-#### Q. How to log hibernate generated sql queries in log files?
-#### Q. What is cascading and what are different types of cascading?
-#### Q. How to integrate log4j logging in hibernate application?
-#### Q. What is HibernateTemplate class?
-#### Q. How to integrate Hibernate with Servlet or Struts2 web applications?
-#### Q. Which design patterns are used in Hibernate framework?
-#### Q. What is Hibernate Validator Framework?
-#### Q. What is the benefit of Hibernate Tools Eclipse plugin?
-#### Q. What are the technologies that are supported by Hibernate?
-#### Q. What is your understanding of Hibernate proxy?
-#### Q. Can you explain Hibernate callback interfaces?
-#### Q. How to create database applications in Java with the use of Hibernate?
-#### Q. Can you share your views on mapping description files?
-#### Q. What are your thoughts on file mapping in Hibernate?
-#### Q. Can you explain version field?
-#### Q. What are your views on the function addClass?
-#### Q. Can you explain the role of addDirectory() and addjar() methods?
-#### Q. What do you understand by Hibernate tuning?
-#### Q. What is your understanding of Light Object Mapping?
-#### Q. How does Hibernate create the database connection?
-#### Q. What are possible ways to configure object-table mapping?
-#### Q. Which annotation is used to declare a class as a hibernate bean?
-#### Q. How do I specify table name linked to an entity using annotation?
-#### Q. How does a variable in an entity connect to the database column?
-#### Q. How do we specify a different column name for the variables mapping?
-#### Q. How do we specify a variable to be primary key for the table?
-#### Q. How do you configure the dialect in hibernate.cfg.xml?
-#### Q. How to configure the database URL and credentials in hibernate.cfg.xml?
-#### Q. How to configure the connection pool size?
-#### Q. How do you configure folder scan for Hibernate beans?
-#### Q. How to configure hibernate beans without Spring framework?
-#### Q. Is it possible to connect multiple database in a single Java application using Hibernate?
-#### Q. Does Hibernate support polymorphism?
-#### Q. How many Hibernate sessions exist at any point of time in an application?
-#### Q. What is N+1 SELECT problem in Hibernate? What are some strategies to solve the N+1 SELECT problem in Hibernate? 
-#### Q. What is the requirement for a Java object to become a Hibernate entity object? 
-#### Q. How do you log SQL queries issued by the Hibernate framework in Java application?
-#### Q. What is the difference between the transient, persistent and detached state in Hibernate? 
-#### Q. How properties of a class are mapped to the columns of a database table in Hibernate?
-#### Q. What is the usage of Configuration Interface in hibernate?
-#### Q. How can we use new custom interfaces to enhance functionality of built-in interfaces of hibernate?
-#### Q. What are POJOs and what is their significance?
-#### Q. How can we invoke stored procedures in hibernate?
-#### Q. What are the benefits of using Hibernate template?
-#### Q. How can we get hibernate statistics?
-#### Q. How can we reduce database write action times in Hibernate?
-#### Q. When an instance goes in detached state in hibernate?
-#### Q. What the four ORM levels are in hibernate?
-#### Q. What is the default cache service of hibernate?
-#### Q. What are the two mapping associations used in hibernate?
-#### Q. What is the usage of Hibernate QBC API?
-#### Q. In how many ways, objects can be fetched from database in hibernate?
-#### Q. How primary key is created by using hibernate?
-#### Q. How can we reattach any detached objects in Hibernate?
-#### Q. What are different ways to disable hibernate second level cache?
-#### Q. What is ORM metadata?
-#### Q. Which one is the default transaction factory in hibernate?
-#### Q. What is the role of JMX in hibernate?
-#### Q. In how many ways objects can be identified in Hibernate?
-#### Q. What different fetching strategies are of hibernate?
-#### Q. How mapping of java objects is done with database tables?
-#### Q. What are derived properties in hibernate?
-#### Q. What is the use of version property in hibernate?
-#### Q. What is attribute oriented programming?
-#### Q. What is the use of session.lock() in hibernate?
-#### Q. What the three inheritance models are of hibernate?
-#### Q. What is general hibernate flow using RDBMS?
-#### Q. What is difference between managed associations and hibernate associations?
-#### Q. What are the inheritance mapping strategies?
-#### Q. What is automatic dirty checking in hibernate?
-#### Q. Explain Hibernate configuration file and Hibernate mapping file?
+## Q. What are the collection types in Hibernate?
+
+In Hibernate, collections are used to represent associations between entities, such as one-to-many or many-to-many relationships. Hibernate supports several collection types that map to Java collections and are persisted to the database. The main collection types are:
+
+1. **Bag**: 
+   - Mapped to `java.util.List` or `java.util.Collection`.
+   - Allows duplicates and does not maintain order.
+   - Suitable for unordered collections where duplicates are allowed.
+   - Example: `<bag name="items" table="item_table">`
+
+2. **Set**:
+   - Mapped to `java.util.Set`.
+   - Does not allow duplicates and does not maintain order.
+   - Uses a join table or foreign key for many-to-many or one-to-many.
+   - Example: `<set name="tags" table="tag_table">`
+
+3. **List**:
+   - Mapped to `java.util.List`.
+   - Maintains order and allows duplicates.
+   - Requires an index column to preserve order.
+   - Example: `<list name="tasks" table="task_table"> <key column="user_id"/> <index column="position"/> <element column="task_name"/> </list>`
+
+4. **Map**:
+   - Mapped to `java.util.Map`.
+   - Stores key-value pairs.
+   - Requires a key column and a value column.
+   - Example: `<map name="properties" table="property_table"> <key column="entity_id"/> <map-key column="key_column"/> <element column="value_column"/> </map>`
+
+5. **Array**:
+   - Mapped to arrays (e.g., `String[]`).
+   - Rarely used, as it's less flexible than other collections.
+   - Example: `<array name="names" table="name_table">`
+
+These collection types are defined in Hibernate mapping files (hbm.xml) or using annotations like `@OneToMany`, `@ManyToMany`, etc. Choosing the right collection type depends on the requirements for order, duplicates, and performance.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. How to implement Joins in Hibernate?
+
+In Hibernate, joins can be implemented using HQL (Hibernate Query Language), Criteria API, or through associations defined in entity mappings. Joins allow you to retrieve data from multiple related tables in a single query, improving performance by reducing the number of database hits.
+
+### 1. Using HQL (Hibernate Query Language)
+HQL is similar to SQL but operates on entities and their properties. You can perform INNER JOIN, LEFT JOIN, RIGHT JOIN, etc.
+
+**Example: INNER JOIN**
+```java
+String hql = "FROM Employee e INNER JOIN e.department d WHERE d.name = :deptName";
+Query query = session.createQuery(hql);
+query.setParameter("deptName", "IT");
+List<Object[]> results = query.list(); // Returns array of Employee and Department
+```
+
+**Example: LEFT JOIN**
+```java
+String hql = "FROM Employee e LEFT JOIN e.department d";
+Query query = session.createQuery(hql);
+List<Object[]> results = query.list();
+```
+
+**Fetching with SELECT**
+```java
+String hql = "SELECT e.name, d.name FROM Employee e JOIN e.department d";
+Query query = session.createQuery(hql);
+List<Object[]> results = query.list();
+```
+
+### 2. Using Criteria API
+The Criteria API provides a programmatic way to build queries with joins.
+
+**Example:**
+```java
+Criteria criteria = session.createCriteria(Employee.class, "e");
+criteria.createAlias("e.department", "d"); // Creates join
+criteria.add(Restrictions.eq("d.name", "IT"));
+List<Employee> employees = criteria.list();
+```
+
+For projections:
+```java
+Criteria criteria = session.createCriteria(Employee.class, "e");
+criteria.createAlias("e.department", "d");
+criteria.setProjection(Projections.projectionList()
+    .add(Projections.property("e.name"))
+    .add(Projections.property("d.name")));
+List<Object[]> results = criteria.list();
+```
+
+### 3. Using Associations (Automatic Joins)
+When you define relationships in your entities using annotations like `@OneToMany`, `@ManyToOne`, Hibernate automatically handles joins when you access related entities.
+
+**Example Entity Mapping:**
+```java
+@Entity
+public class Employee {
+    @Id
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "dept_id")
+    private Department department;
+    
+    // getters and setters
+}
+
+@Entity
+public class Department {
+    @Id
+    private Long id;
+    
+    @OneToMany(mappedBy = "department")
+    private List<Employee> employees;
+    
+    // getters and setters
+}
+```
+
+**Fetching with Join:**
+```java
+Employee emp = (Employee) session.get(Employee.class, 1L);
+Department dept = emp.getDepartment(); // Hibernate performs join automatically
+```
+
+### Types of Joins
+- **INNER JOIN**: Returns only matching rows from both tables.
+- **LEFT JOIN**: Returns all rows from the left table and matching rows from the right table.
+- **RIGHT JOIN**: Returns all rows from the right table and matching rows from the left table.
+- **FULL JOIN**: Returns all rows from both tables.
+
+### Best Practices
+- Use joins to minimize database queries and avoid N+1 problems.
+- Prefer HQL or Criteria for complex queries.
+- Use fetch joins (e.g., `JOIN FETCH` in HQL) to eagerly load related entities in a single query.
+- Monitor generated SQL to ensure efficient execution.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. Why we should not make Entity Class final?
+## Q. What is the benefit of native sql query support in hibernate?
+## Q. What is Named SQL Query? What are the benefits of Named SQL Query?
+## Q. How to log hibernate generated sql queries in log files?
+## Q. What is cascading and what are different types of cascading?
+## Q. How to integrate log4j logging in hibernate application?
+## Q. What is HibernateTemplate class?
+## Q. How to integrate Hibernate with Servlet or Struts2 web applications?
+## Q. Which design patterns are used in Hibernate framework?
+## Q. What is Hibernate Validator Framework?
+## Q. What is the benefit of Hibernate Tools Eclipse plugin?
+## Q. What are the technologies that are supported by Hibernate?
+## Q. What is your understanding of Hibernate proxy?
+## Q. Can you explain Hibernate callback interfaces?
+## Q. How to create database applications in Java with the use of Hibernate?
+## Q. Can you share your views on mapping description files?
+## Q. What are your thoughts on file mapping in Hibernate?
+## Q. Can you explain version field?
+## Q. What are your views on the function addClass?
+## Q. Can you explain the role of addDirectory() and addjar() methods?
+## Q. What do you understand by Hibernate tuning?
+## Q. What is your understanding of Light Object Mapping?
+## Q. How does Hibernate create the database connection?
+## Q. What are possible ways to configure object-table mapping?
+## Q. Which annotation is used to declare a class as a hibernate bean?
+## Q. How do I specify table name linked to an entity using annotation?
+## Q. How does a variable in an entity connect to the database column?
+## Q. How do we specify a different column name for the variables mapping?
+## Q. How do we specify a variable to be primary key for the table?
+## Q. How do you configure the dialect in hibernate.cfg.xml?
+## Q. How to configure the database URL and credentials in hibernate.cfg.xml?
+## Q. How to configure the connection pool size?
+## Q. How do you configure folder scan for Hibernate beans?
+## Q. How to configure hibernate beans without Spring framework?
+## Q. Is it possible to connect multiple database in a single Java application using Hibernate?
+## Q. Does Hibernate support polymorphism?
+## Q. How many Hibernate sessions exist at any point of time in an application?
+## Q. What is N+1 SELECT problem in Hibernate? What are some strategies to solve the N+1 SELECT problem in Hibernate?
+## Q. What is the requirement for a Java object to become a Hibernate entity object?
+## Q. How do you log SQL queries issued by the Hibernate framework in Java application?
+## Q. What is the difference between the transient, persistent and detached state in Hibernate?
+## Q. How properties of a class are mapped to the columns of a database table in Hibernate?
+## Q. What is the usage of Configuration Interface in hibernate?
+## Q. How can we use new custom interfaces to enhance functionality of built-in interfaces of hibernate?
+## Q. What are POJOs and what is their significance?
+## Q. How can we invoke stored procedures in hibernate?
+## Q. What are the benefits of using Hibernate template?
+## Q. How can we get hibernate statistics?
+## Q. How can we reduce database write action times in Hibernate?
+## Q. When an instance goes in detached state in hibernate?
+## Q. What the four ORM levels are in hibernate?
+## Q. What is the default cache service of hibernate?
+## Q. What are the two mapping associations used in hibernate?
+## Q. What is the usage of Hibernate QBC API?
+## Q. In how many ways, objects can be fetched from database in hibernate?
+## Q. How primary key is created by using hibernate?
+## Q. How can we reattach any detached objects in Hibernate?
+## Q. What are different ways to disable hibernate second level cache?
+## Q. What is ORM metadata?
+## Q. Which one is the default transaction factory in hibernate?
+## Q. What is the role of JMX in hibernate?
+## Q. In how many ways objects can be identified in Hibernate?
+## Q. What different fetching strategies are of hibernate?
+## Q. How mapping of java objects is done with database tables?
+## Q. What are derived properties in hibernate?
+## Q. What is the use of version property in hibernate?
+## Q. What is attribute oriented programming?
+## Q. What is the use of session.lock() in hibernate?
+## Q. What the three inheritance models are of hibernate?
+## Q. What is general hibernate flow using RDBMS?
+## Q. What is difference between managed associations and hibernate associations?
+## Q. What are the inheritance mapping strategies?
+## Q. What is automatic dirty checking in hibernate?
+## Q. Explain Hibernate configuration file and Hibernate mapping file?
 
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
