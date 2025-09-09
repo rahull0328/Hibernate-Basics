@@ -2281,8 +2281,69 @@ Department dept = emp.getDepartment(); // Hibernate performs join automatically
 </div>
 
 ## Q. Why we should not make Entity Class final?
+
+**Answer:** Making an entity class final in Hibernate is not recommended because Hibernate relies on proxy generation for features like lazy loading. When an entity is marked as final, Hibernate cannot create a subclass proxy, which is essential for intercepting method calls to implement lazy initialization. This can lead to issues where associated entities are loaded eagerly instead of lazily, potentially causing performance problems. Additionally, Hibernate uses proxies for other purposes, such as change detection and caching. By keeping the entity class non-final, Hibernate can dynamically generate proxies at runtime, ensuring optimal performance and functionality.
+
 ## Q. What is the benefit of native sql query support in hibernate?
+
+**Answer:** Hibernate provides support for native SQL queries, which allows developers to execute raw SQL statements directly against the database. This is beneficial in several scenarios:
+
+1. **Complex Queries:** When HQL or JPQL cannot express complex queries involving database-specific features like stored procedures, window functions, or advanced joins, native SQL can be used.
+
+2. **Performance Optimization:** Native SQL gives direct control over the SQL generated, allowing for fine-tuning of queries for better performance, especially when dealing with large datasets or specific database optimizations.
+
+3. **Database-Specific Features:** It enables the use of database-specific extensions and functions that are not supported by HQL.
+
+4. **Migration from JDBC:** For applications migrating from JDBC to Hibernate, native SQL provides a smoother transition by allowing existing SQL queries to be reused.
+
+5. **Stored Procedures:** Native SQL support makes it easier to call stored procedures and handle their results within Hibernate.
+
+However, using native SQL should be done judiciously as it can reduce portability across different databases and may bypass some of Hibernate's ORM features like automatic dirty checking and caching.
+
 ## Q. What is Named SQL Query? What are the benefits of Named SQL Query?
+
+**Answer:** Named SQL queries in Hibernate are predefined SQL queries that are defined in Hibernate mapping files (such as hbm.xml) or using annotations, and are assigned a unique name. This allows developers to reference and execute these queries by name in the application code, rather than writing raw SQL each time. Named queries can include parameters, making them flexible and reusable.
+
+**Benefits of Named SQL Query:**
+
+- **Reusability:** Define a query once and reuse it across multiple parts of the application, reducing code duplication.
+- **Performance:** Named queries are precompiled by Hibernate, which can improve execution speed compared to dynamically created queries.
+- **Maintainability:** Centralized query management makes it easier to update and maintain SQL logic in one place.
+- **Security:** Supports parameterized queries, helping to prevent SQL injection attacks.
+- **Readability:** Improves code readability by separating SQL from Java code.
+
+**Example:**
+
+Define a named query in `hibernate.cfg.xml` or an entity mapping file:
+
+```xml
+<hibernate-mapping>
+    <sql-query name="findEmployeesByDept">
+        <return alias="emp" class="com.example.Employee"/>
+        SELECT emp_id, emp_name, emp_salary FROM EMPLOYEE WHERE dept_id = ?
+    </sql-query>
+</hibernate-mapping>
+```
+
+Or using annotations in an entity class:
+
+```java
+@NamedNativeQuery(
+    name = "findEmployeesByDept",
+    query = "SELECT * FROM EMPLOYEE WHERE dept_id = ?",
+    resultClass = Employee.class
+)
+```
+
+Execute the named query in Java code:
+
+```java
+Session session = sessionFactory.openSession();
+Query query = session.getNamedQuery("findEmployeesByDept");
+query.setParameter(1, deptId);
+List<Employee> employees = query.list();
+```
+
 ## Q. How to log hibernate generated sql queries in log files?
 ## Q. What is cascading and what are different types of cascading?
 ## Q. How to integrate log4j logging in hibernate application?
@@ -2354,6 +2415,14 @@ Department dept = emp.getDepartment(); // Hibernate performs join automatically
 ## Q. What are the inheritance mapping strategies?
 ## Q. What is automatic dirty checking in hibernate?
 ## Q. Explain Hibernate configuration file and Hibernate mapping file?
+
+## Q. What is Named SQL Query? What are the benefits of Named SQL Query?
+
+**Answer:** Named SQL queries in Hibernate allow you to define SQL queries in the mapping files or annotations, giving them a name for reuse. Benefits include better organization, reusability, and performance optimization.
+
+## Q. How to log hibernate generated sql queries in log files?
+
+**Answer:** To log Hibernate-generated SQL queries, configure logging in log4j or slf4j properties, set hibernate.show_sql=true, and adjust log levels.
 
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
