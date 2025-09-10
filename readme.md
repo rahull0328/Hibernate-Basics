@@ -2284,6 +2284,10 @@ Department dept = emp.getDepartment(); // Hibernate performs join automatically
 
 **Answer:** Making an entity class final in Hibernate is not recommended because Hibernate relies on proxy generation for features like lazy loading. When an entity is marked as final, Hibernate cannot create a subclass proxy, which is essential for intercepting method calls to implement lazy initialization. This can lead to issues where associated entities are loaded eagerly instead of lazily, potentially causing performance problems. Additionally, Hibernate uses proxies for other purposes, such as change detection and caching. By keeping the entity class non-final, Hibernate can dynamically generate proxies at runtime, ensuring optimal performance and functionality.
 
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What is the benefit of native sql query support in hibernate?
 
 **Answer:** Hibernate provides support for native SQL queries, which allows developers to execute raw SQL statements directly against the database. This is beneficial in several scenarios:
@@ -2299,6 +2303,10 @@ Department dept = emp.getDepartment(); // Hibernate performs join automatically
 5. **Stored Procedures:** Native SQL support makes it easier to call stored procedures and handle their results within Hibernate.
 
 However, using native SQL should be done judiciously as it can reduce portability across different databases and may bypass some of Hibernate's ORM features like automatic dirty checking and caching.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
 
 ## Q. What is Named SQL Query? What are the benefits of Named SQL Query?
 
@@ -2343,6 +2351,10 @@ Query query = session.getNamedQuery("findEmployeesByDept");
 query.setParameter(1, deptId);
 List<Employee> employees = query.list();
 ```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
 
 ## Q. How to log hibernate generated sql queries in log files?
 ## Q. What is cascading and what are different types of cascading?
@@ -2416,13 +2428,169 @@ List<Employee> employees = query.list();
 ## Q. What is automatic dirty checking in hibernate?
 ## Q. Explain Hibernate configuration file and Hibernate mapping file?
 
-## Q. What is Named SQL Query? What are the benefits of Named SQL Query?
-
-**Answer:** Named SQL queries in Hibernate allow you to define SQL queries in the mapping files or annotations, giving them a name for reuse. Benefits include better organization, reusability, and performance optimization.
-
 ## Q. How to log hibernate generated sql queries in log files?
 
-**Answer:** To log Hibernate-generated SQL queries, configure logging in log4j or slf4j properties, set hibernate.show_sql=true, and adjust log levels.
+**Answer:** To log Hibernate-generated SQL queries in log files, you need to configure Hibernate properties and logging frameworks appropriately. Here's a step-by-step guide:
+
+### 1. Enable SQL Logging in Hibernate Configuration
+Set the following properties in your `hibernate.cfg.xml` or `application.properties` (for Spring Boot):
+
+**hibernate.cfg.xml:**
+```xml
+<property name="hibernate.show_sql">true</property>
+<property name="hibernate.format_sql">true</property>
+```
+
+**application.properties (Spring Boot):**
+```properties
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+```
+
+- `hibernate.show_sql=true`: Prints SQL statements to the console.
+- `hibernate.format_sql=true`: Formats the SQL for better readability.
+
+### 2. Configure Logging Framework
+To log to files instead of console, configure your logging framework (e.g., Log4j, Logback, or SLF4J).
+
+**Using Log4j (log4j.properties):**
+```properties
+# Set logging level for Hibernate SQL
+log4j.logger.org.hibernate.SQL=DEBUG
+log4j.logger.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
+# Configure file appender
+log4j.appender.file=org.apache.log4j.FileAppender
+log4j.appender.file.File=hibernate.log
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+```
+
+**Using Logback (logback.xml):**
+```xml
+<configuration>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>hibernate.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
+```
+
+### 3. Log Query Parameters
+To log actual parameter values (e.g., `?` in prepared statements), set the logging level for `org.hibernate.type.descriptor.sql.BasicBinder` to `TRACE`.
+
+### Example Output
+With the above configuration, your log file might contain:
+```
+2023-10-01 12:34:56 DEBUG org.hibernate.SQL - select employee0_.id as id1_0_, employee0_.name as name2_0_ from Employee employee0_ where employee0_.id=?
+2023-10-01 12:34:56 TRACE org.hibernate.type.descriptor.sql.BasicBinder - binding parameter [1] as [BIGINT] - [123]
+```
+
+### Note
+- Logging SQL can impact performance in production; use it only for debugging.
+- For Spring Boot, you can also use `logging.level.org.hibernate.SQL=DEBUG` in `application.properties`.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. What is cascading and what are different types of cascading? Give examples.
+
+**Answer:** Cascading in Hibernate refers to the automatic propagation of operations (like save, update, delete) from a parent entity to its associated child entities. This ensures that when you perform an operation on the parent, the same operation is applied to the related entities, maintaining data integrity and reducing boilerplate code.
+
+### Types of Cascading
+Hibernate supports several cascade types, defined in the `javax.persistence.CascadeType` enum or Hibernate's `org.hibernate.annotations.CascadeType`. You can apply them using annotations like `@OneToMany(cascade = CascadeType.ALL)` or in XML mappings.
+
+1. **ALL**: Propagates all operations (PERSIST, MERGE, REMOVE, REFRESH, DETACH).
+2. **PERSIST**: Propagates save/persist operations.
+3. **MERGE**: Propagates merge operations.
+4. **REMOVE**: Propagates delete/remove operations.
+5. **REFRESH**: Propagates refresh operations (reload from database).
+6. **DETACH**: Propagates detach operations (remove from session).
+
+### Examples
+Consider entities `Parent` and `Child` with a one-to-many relationship.
+
+**Entity Definitions:**
+```java
+@Entity
+public class Parent {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private List<Child> children = new ArrayList<>();
+}
+
+@Entity
+public class Child {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @ManyToOne
+    private Parent parent;
+}
+```
+
+**Example 1: CascadeType.PERSIST**
+```java
+Parent parent = new Parent();
+Child child = new Child();
+child.setParent(parent);
+parent.getChildren().add(child);
+
+session.persist(parent); // Saves both parent and child
+```
+
+**Example 2: CascadeType.REMOVE**
+```java
+Parent parent = session.get(Parent.class, 1L);
+session.remove(parent); // Deletes parent and all its children
+```
+
+**Example 3: CascadeType.MERGE**
+```java
+Parent detachedParent = new Parent();
+detachedParent.setId(1L);
+Child newChild = new Child();
+newChild.setParent(detachedParent);
+detachedParent.getChildren().add(newChild);
+
+Parent mergedParent = (Parent) session.merge(detachedParent); // Merges parent and saves new child
+```
+
+**Example 4: CascadeType.REFRESH**
+```java
+Parent parent = session.get(Parent.class, 1L);
+// Assume data changes in DB
+session.refresh(parent); // Refreshes parent and all children from DB
+```
+
+**Example 5: CascadeType.DETACH**
+```java
+Parent parent = session.get(Parent.class, 1L);
+session.detach(parent); // Detaches parent and all children from session
+```
+
+### Best Practices
+- Use cascading judiciously to avoid unintended operations.
+- For complex relationships, consider using specific cascade types instead of `ALL`.
+- Be aware of potential performance implications, like cascading deletes on large datasets.
 
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
