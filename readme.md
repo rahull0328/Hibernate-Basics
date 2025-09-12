@@ -2356,9 +2356,190 @@ List<Employee> employees = query.list();
     <b><a href="#">↥ back to top</a></b>
 </div>
 
-## Q. How to log hibernate generated sql queries in log files?
 ## Q. What is cascading and what are different types of cascading?
+
+**Answer:** Cascading in Hibernate refers to the automatic propagation of operations (like save, update, delete) from a parent entity to its associated child entities. This ensures that when you perform an operation on the parent, the same operation is applied to the related entities, maintaining data integrity and reducing boilerplate code.
+
+### Types of Cascading
+Hibernate supports several cascade types, defined in the `javax.persistence.CascadeType` enum or Hibernate's `org.hibernate.annotations.CascadeType`. You can apply them using annotations like `@OneToMany(cascade = CascadeType.ALL)` or in XML mappings.
+
+1. **ALL**: Propagates all operations (PERSIST, MERGE, REMOVE, REFRESH, DETACH).
+2. **PERSIST**: Propagates save/persist operations.
+3. **MERGE**: Propagates merge operations.
+4. **REMOVE**: Propagates delete/remove operations.
+5. **REFRESH**: Propagates refresh operations (reload from database).
+6. **DETACH**: Propagates detach operations (remove from session).
+
+### Examples
+Consider entities `Parent` and `Child` with a one-to-many relationship.
+
+**Entity Definitions:**
+
+```java
+@Entity
+public class Parent {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private List<Child> children = new ArrayList<>();
+}
+
+@Entity
+public class Child {
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @ManyToOne
+    private Parent parent;
+}
+```
+
+**Example 1: CascadeType.PERSIST**
+
+```java
+Parent parent = new Parent();
+Child child = new Child();
+child.setParent(parent);
+parent.getChildren().add(child);
+
+session.persist(parent); // Saves both parent and child
+```
+
+**Example 2: CascadeType.REMOVE**
+
+```java
+Parent parent = session.get(Parent.class, 1L);
+session.remove(parent); // Deletes parent and all its children
+```
+
+**Example 3: CascadeType.MERGE**
+
+```java
+Parent detachedParent = new Parent();
+detachedParent.setId(1L);
+Child newChild = new Child();
+newChild.setParent(detachedParent);
+detachedParent.getChildren().add(newChild);
+
+Parent mergedParent = (Parent) session.merge(detachedParent); // Merges parent and saves new child
+```
+
+**Example 4: CascadeType.REFRESH**
+
+```java
+Parent parent = session.get(Parent.class, 1L);
+// Assume data changes in DB
+session.refresh(parent); // Refreshes parent and all children from DB
+```
+
+**Example 5: CascadeType.DETACH**
+
+```java
+Parent parent = session.get(Parent.class, 1L);
+session.detach(parent); // Detaches parent and all children from session
+```
+
+### Best Practices
+- Use cascading judiciously to avoid unintended operations.
+- For complex relationships, consider using specific cascade types instead of `ALL`.
+- Be aware of potential performance implications, like cascading deletes on large datasets.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How to integrate log4j logging in hibernate application?
+
+**Answer:** To integrate Log4j logging in a Hibernate application, follow these steps:
+
+### 1. Add Log4j Dependencies
+Include Log4j dependencies in your project's build file (e.g., pom.xml for Maven).
+
+```xml
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>2.17.1</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-api</artifactId>
+    <version>2.17.1</version>
+</dependency>
+```
+
+### 2. Configure Log4j
+Create a `log4j2.xml` configuration file in your classpath (e.g., src/main/resources).
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <File name="FileAppender" fileName="logs/hibernate.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.hibernate" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileAppender"/>
+        </Logger>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
+```
+
+### 3. Configure Hibernate to Use Log4j
+In your Hibernate configuration (hibernate.cfg.xml), ensure that Hibernate uses SLF4J, which bridges to Log4j.
+
+```xml
+<property name="hibernate.show_sql">true</property>
+<property name="hibernate.format_sql">true</property>
+```
+
+### 4. Add SLF4J Bridge for Log4j
+If using Log4j 2, add the SLF4J bridge.
+
+```xml
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-slf4j-impl</artifactId>
+    <version>2.17.1</version>
+</dependency>
+```
+
+### 5. Example Usage in Code
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class HibernateExample {
+    private static final Logger logger = LoggerFactory.getLogger(HibernateExample.class);
+
+    public static void main(String[] args) {
+        // Hibernate operations
+        logger.info("Starting Hibernate application");
+        // Your Hibernate code here
+        logger.debug("Hibernate operation completed");
+    }
+}
+```
+
+This setup will log Hibernate operations to both console and file as configured.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What is HibernateTemplate class?
 ## Q. How to integrate Hibernate with Servlet or Struts2 web applications?
 ## Q. Which design patterns are used in Hibernate framework?
