@@ -263,6 +263,243 @@ Employee id 2 -> EmployeeEntity [id=2, firstName=Deja, lastName=Vu, email=xyz@em
     <b><a href="#">↥ back to top</a></b>
 </div>
 
+## Q. What is HibernateTemplate class?
+
+**Answer:** HibernateTemplate is a helper class provided by the Spring Framework to simplify the integration and usage of Hibernate in Spring-based applications. It acts as a wrapper around the Hibernate Session, providing template methods for common database operations such as save, update, delete, and query. HibernateTemplate handles the lifecycle of Hibernate sessions and transactions automatically, reducing boilerplate code and potential errors. It integrates with Spring's transaction management and exception translation, converting Hibernate exceptions into Spring's DataAccessException hierarchy.
+
+**Key Features:**
+- Manages Hibernate Session lifecycle.
+- Provides methods for CRUD operations.
+- Handles transactions and exceptions.
+- Supports both Hibernate 3 and Hibernate 4/5.
+
+**Example Usage:**
+
+```java
+import org.springframework.orm.hibernate5.HibernateTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class EmployeeDao {
+
+    @Autowired
+    private HibernateTemplate hibernateTemplate;
+
+    public void saveEmployee(Employee employee) {
+        hibernateTemplate.save(employee);
+    }
+
+    public Employee getEmployee(int id) {
+        return hibernateTemplate.get(Employee.class, id);
+    }
+
+    public List<Employee> getAllEmployees() {
+        return hibernateTemplate.loadAll(Employee.class);
+    }
+
+    public void updateEmployee(Employee employee) {
+        hibernateTemplate.update(employee);
+    }
+
+    public void deleteEmployee(Employee employee) {
+        hibernateTemplate.delete(employee);
+    }
+}
+```
+
+In this example, HibernateTemplate is injected into a DAO class, and methods like `save()`, `get()`, and `loadAll()` are used to perform database operations without manually managing sessions or transactions.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. How to integrate Hibernate with Servlet or Struts2 web applications?
+
+**Answer:** Integrating Hibernate with Servlet or Struts2 web applications involves setting up Hibernate configuration, managing sessions, and performing database operations within the web layer. Below are the steps and examples for both Servlet and Struts2.
+
+### General Steps:
+1. **Add Dependencies:** Include Hibernate JARs (e.g., hibernate-core, hibernate-entitymanager) and database driver in your project (e.g., via Maven or lib folder).
+2. **Create Hibernate Configuration:** Set up `hibernate.cfg.xml` with database properties, dialect, and entity mappings.
+3. **Create Entity Classes:** Annotate POJOs with Hibernate annotations like `@Entity`, `@Id`, etc.
+4. **Set Up SessionFactory:** Create a utility class to build and provide SessionFactory.
+5. **Manage Sessions in Web Layer:** In servlets or actions, obtain sessions, perform operations, and handle transactions.
+6. **Handle Transactions:** Use Hibernate transactions for data consistency.
+7. **Close Resources:** Always close sessions to avoid leaks.
+
+### Example with Servlet:
+
+**HibernateUtil.java (SessionFactory Setup):**
+
+```java
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class HibernateUtil {
+    private static final SessionFactory sessionFactory = buildSessionFactory();
+
+    private static SessionFactory buildSessionFactory() {
+        try {
+            return new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        } catch (Throwable ex) {
+            System.err.println("Initial SessionFactory creation failed." + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
+    public static void shutdown() {
+        getSessionFactory().close();
+    }
+}
+```
+
+**EmployeeServlet.java:**
+
+```java
+import java.io.IOException;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+public class EmployeeServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            List<Employee> employees = session.createQuery("from Employee").list();
+            request.setAttribute("employees", employees);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        request.getRequestDispatcher("employees.jsp").forward(request, response);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String name = request.getParameter("name");
+        Employee emp = new Employee();
+        emp.setName(name);
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.save(emp);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        response.sendRedirect("employees");
+    }
+}
+```
+
+### Example with Struts2:
+
+**EmployeeAction.java:**
+
+```java
+import com.opensymphony.xwork2.ActionSupport;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import java.util.List;
+
+public class EmployeeAction extends ActionSupport {
+    private List<Employee> employees;
+    private Employee employee;
+
+    public String list() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            employees = session.createQuery("from Employee").list();
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return SUCCESS;
+    }
+
+    public String save() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+            session.save(employee);
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return SUCCESS;
+    }
+
+    // Getters and setters
+    public List<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+}
+```
+
+**struts.xml:**
+
+```xml
+<struts>
+    <package name="default" extends="struts-default">
+        <action name="listEmployees" class="com.example.EmployeeAction" method="list">
+            <result name="success">employees.jsp</result>
+        </action>
+        <action name="saveEmployee" class="com.example.EmployeeAction" method="save">
+            <result name="success" type="redirect">listEmployees</result>
+        </action>
+    </package>
+</struts>
+```
+
+**Best Practices:**
+- Use a session-per-request pattern or Open Session in View filter to manage sessions.
+- Handle exceptions properly and log them.
+- For production, consider using connection pooling (e.g., C3P0 with Hibernate).
+- Integrate with Spring for better transaction management if possible.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. Mention the differences between JPA and Hibernate?
 
 JPA is a specification for accessing, persisting and managing the data between Java objects and the relational database. 
