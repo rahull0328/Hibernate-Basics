@@ -2853,151 +2853,6 @@ This setup will log Hibernate operations to both console and file as configured.
 
 These patterns help Hibernate manage complexity, improve maintainability, and provide extensibility.
 
-
-
-## Q. What are the technologies that are supported by Hibernate?
-## Q. What is your understanding of Hibernate proxy?
-## Q. Can you explain Hibernate callback interfaces?
-## Q. How to create database applications in Java with the use of Hibernate?
-## Q. Can you share your views on mapping description files?
-## Q. What are your thoughts on file mapping in Hibernate?
-## Q. Can you explain version field?
-## Q. What are your views on the function addClass?
-## Q. Can you explain the role of addDirectory() and addjar() methods?
-## Q. What do you understand by Hibernate tuning?
-## Q. What is your understanding of Light Object Mapping?
-## Q. How does Hibernate create the database connection?
-## Q. What are possible ways to configure object-table mapping?
-## Q. Which annotation is used to declare a class as a hibernate bean?
-## Q. How do I specify table name linked to an entity using annotation?
-## Q. How does a variable in an entity connect to the database column?
-## Q. How do we specify a different column name for the variables mapping?
-## Q. How do we specify a variable to be primary key for the table?
-## Q. How do you configure the dialect in hibernate.cfg.xml?
-## Q. How to configure the database URL and credentials in hibernate.cfg.xml?
-## Q. How to configure the connection pool size?
-## Q. How do you configure folder scan for Hibernate beans?
-## Q. How to configure hibernate beans without Spring framework?
-## Q. Is it possible to connect multiple database in a single Java application using Hibernate?
-## Q. Does Hibernate support polymorphism?
-## Q. How many Hibernate sessions exist at any point of time in an application?
-## Q. What is N+1 SELECT problem in Hibernate? What are some strategies to solve the N+1 SELECT problem in Hibernate?
-## Q. What is the requirement for a Java object to become a Hibernate entity object?
-## Q. How do you log SQL queries issued by the Hibernate framework in Java application?
-## Q. What is the difference between the transient, persistent and detached state in Hibernate?
-## Q. How properties of a class are mapped to the columns of a database table in Hibernate?
-## Q. What is the usage of Configuration Interface in hibernate?
-## Q. How can we use new custom interfaces to enhance functionality of built-in interfaces of hibernate?
-## Q. What are POJOs and what is their significance?
-## Q. How can we invoke stored procedures in hibernate?
-## Q. What are the benefits of using Hibernate template?
-## Q. How can we get hibernate statistics?
-## Q. How can we reduce database write action times in Hibernate?
-## Q. When an instance goes in detached state in hibernate?
-## Q. What the four ORM levels are in hibernate?
-## Q. What is the default cache service of hibernate?
-## Q. What are the two mapping associations used in hibernate?
-## Q. What is the usage of Hibernate QBC API?
-## Q. In how many ways, objects can be fetched from database in hibernate?
-## Q. How primary key is created by using hibernate?
-## Q. How can we reattach any detached objects in Hibernate?
-## Q. What are different ways to disable hibernate second level cache?
-## Q. What is ORM metadata?
-## Q. Which one is the default transaction factory in hibernate?
-## Q. What is the role of JMX in hibernate?
-## Q. In how many ways objects can be identified in Hibernate?
-## Q. What different fetching strategies are of hibernate?
-## Q. How mapping of java objects is done with database tables?
-## Q. What are derived properties in hibernate?
-## Q. What is the use of version property in hibernate?
-## Q. What is attribute oriented programming?
-## Q. What is the use of session.lock() in hibernate?
-## Q. What the three inheritance models are of hibernate?
-## Q. What is general hibernate flow using RDBMS?
-## Q. What is difference between managed associations and hibernate associations?
-## Q. What are the inheritance mapping strategies?
-## Q. What is automatic dirty checking in hibernate?
-## Q. Explain Hibernate configuration file and Hibernate mapping file?
-
-## Q. How to log hibernate generated sql queries in log files?
-
-**Answer:** To log Hibernate-generated SQL queries in log files, you need to configure Hibernate properties and logging frameworks appropriately. Here's a step-by-step guide:
-
-### 1. Enable SQL Logging in Hibernate Configuration
-Set the following properties in your `hibernate.cfg.xml` or `application.properties` (for Spring Boot):
-
-**hibernate.cfg.xml:**
-```xml
-<property name="hibernate.show_sql">true</property>
-<property name="hibernate.format_sql">true</property>
-```
-
-**application.properties (Spring Boot):**
-```properties
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-```
-
-- `hibernate.show_sql=true`: Prints SQL statements to the console.
-- `hibernate.format_sql=true`: Formats the SQL for better readability.
-
-### 2. Configure Logging Framework
-To log to files instead of console, configure your logging framework (e.g., Log4j, Logback, or SLF4J).
-
-**Using Log4j (log4j.properties):**
-```properties
-# Set logging level for Hibernate SQL
-log4j.logger.org.hibernate.SQL=DEBUG
-log4j.logger.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
-
-# Configure file appender
-log4j.appender.file=org.apache.log4j.FileAppender
-log4j.appender.file.File=hibernate.log
-log4j.appender.file.layout=org.apache.log4j.PatternLayout
-log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
-```
-
-**Using Logback (logback.xml):**
-```xml
-<configuration>
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>hibernate.log</file>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
-        <appender-ref ref="FILE"/>
-    </logger>
-
-    <root level="INFO">
-        <appender-ref ref="FILE"/>
-    </root>
-</configuration>
-```
-
-### 3. Log Query Parameters
-To log actual parameter values (e.g., `?` in prepared statements), set the logging level for `org.hibernate.type.descriptor.sql.BasicBinder` to `TRACE`.
-
-### Example Output
-With the above configuration, your log file might contain:
-```
-2023-10-01 12:34:56 DEBUG org.hibernate.SQL - select employee0_.id as id1_0_, employee0_.name as name2_0_ from Employee employee0_ where employee0_.id=?
-2023-10-01 12:34:56 TRACE org.hibernate.type.descriptor.sql.BasicBinder - binding parameter [1] as [BIGINT] - [123]
-```
-
-### Note
-- Logging SQL can impact performance in production; use it only for debugging.
-- For Spring Boot, you can also use `logging.level.org.hibernate.SQL=DEBUG` in `application.properties`.
-
-<div align="right">
-    <b><a href="#">↥ back to top</a></b>
-</div>
-
 ## Q. What is cascading and what are different types of cascading? Give examples.
 
 **Answer:** Cascading in Hibernate refers to the automatic propagation of operations (like save, update, delete) from a parent entity to its associated child entities. This ensures that when you perform an operation on the parent, the same operation is applied to the related entities, maintaining data integrity and reducing boilerplate code.
@@ -3086,3 +2941,146 @@ session.detach(parent); // Detaches parent and all children from session
 <div align="right">
     <b><a href="#">↥ back to top</a></b>
 </div>
+
+## Q. How to log hibernate generated sql queries in log files?
+
+**Answer:** To log Hibernate-generated SQL queries in log files, you need to configure Hibernate properties and logging frameworks appropriately. Here's a step-by-step guide:
+
+### 1. Enable SQL Logging in Hibernate Configuration
+Set the following properties in your `hibernate.cfg.xml` or `application.properties` (for Spring Boot):
+
+**hibernate.cfg.xml:**
+```xml
+<property name="hibernate.show_sql">true</property>
+<property name="hibernate.format_sql">true</property>
+```
+
+**application.properties (Spring Boot):**
+```properties
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+```
+
+- `hibernate.show_sql=true`: Prints SQL statements to the console.
+- `hibernate.format_sql=true`: Formats the SQL for better readability.
+
+### 2. Configure Logging Framework
+To log to files instead of console, configure your logging framework (e.g., Log4j, Logback, or SLF4J).
+
+**Using Log4j (log4j.properties):**
+```properties
+# Set logging level for Hibernate SQL
+log4j.logger.org.hibernate.SQL=DEBUG
+log4j.logger.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+
+# Configure file appender
+log4j.appender.file=org.apache.log4j.FileAppender
+log4j.appender.file.File=hibernate.log
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n
+```
+
+**Using Logback (logback.xml):**
+```xml
+<configuration>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>hibernate.log</file>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
+```
+
+### 3. Log Query Parameters
+To log actual parameter values (e.g., `?` in prepared statements), set the logging level for `org.hibernate.type.descriptor.sql.BasicBinder` to `TRACE`.
+
+### Example Output
+With the above configuration, your log file might contain:
+```
+2023-10-01 12:34:56 DEBUG org.hibernate.SQL - select employee0_.id as id1_0_, employee0_.name as name2_0_ from Employee employee0_ where employee0_.id=?
+2023-10-01 12:34:56 TRACE org.hibernate.type.descriptor.sql.BasicBinder - binding parameter [1] as [BIGINT] - [123]
+```
+
+### Note
+- Logging SQL can impact performance in production; use it only for debugging.
+- For Spring Boot, you can also use `logging.level.org.hibernate.SQL=DEBUG` in `application.properties`.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
+## Q. What are the technologies that are supported by Hibernate?
+## Q. What is your understanding of Hibernate proxy?
+## Q. Can you explain Hibernate callback interfaces?
+## Q. How to create database applications in Java with the use of Hibernate?
+## Q. Can you share your views on mapping description files?
+## Q. What are your thoughts on file mapping in Hibernate?
+## Q. Can you explain version field?
+## Q. What are your views on the function addClass?
+## Q. Can you explain the role of addDirectory() and addjar() methods?
+## Q. What do you understand by Hibernate tuning?
+## Q. What is your understanding of Light Object Mapping?
+## Q. How does Hibernate create the database connection?
+## Q. What are possible ways to configure object-table mapping?
+## Q. Which annotation is used to declare a class as a hibernate bean?
+## Q. How do I specify table name linked to an entity using annotation?
+## Q. How does a variable in an entity connect to the database column?
+## Q. How do we specify a different column name for the variables mapping?
+## Q. How do we specify a variable to be primary key for the table?
+## Q. How do you configure the dialect in hibernate.cfg.xml?
+## Q. How to configure the database URL and credentials in hibernate.cfg.xml?
+## Q. How to configure the connection pool size?
+## Q. How do you configure folder scan for Hibernate beans?
+## Q. How to configure hibernate beans without Spring framework?
+## Q. Is it possible to connect multiple database in a single Java application using Hibernate?
+## Q. Does Hibernate support polymorphism?
+## Q. How many Hibernate sessions exist at any point of time in an application?
+## Q. What is N+1 SELECT problem in Hibernate? What are some strategies to solve the N+1 SELECT problem in Hibernate?
+## Q. What is the requirement for a Java object to become a Hibernate entity object?
+## Q. How do you log SQL queries issued by the Hibernate framework in Java application?
+## Q. What is the difference between the transient, persistent and detached state in Hibernate?
+## Q. How properties of a class are mapped to the columns of a database table in Hibernate?
+## Q. What is the usage of Configuration Interface in hibernate?
+## Q. How can we use new custom interfaces to enhance functionality of built-in interfaces of hibernate?
+## Q. What are POJOs and what is their significance?
+## Q. How can we invoke stored procedures in hibernate?
+## Q. What are the benefits of using Hibernate template?
+## Q. How can we get hibernate statistics?
+## Q. How can we reduce database write action times in Hibernate?
+## Q. When an instance goes in detached state in hibernate?
+## Q. What the four ORM levels are in hibernate?
+## Q. What is the default cache service of hibernate?
+## Q. What are the two mapping associations used in hibernate?
+## Q. What is the usage of Hibernate QBC API?
+## Q. In how many ways, objects can be fetched from database in hibernate?
+## Q. How primary key is created by using hibernate?
+## Q. How can we reattach any detached objects in Hibernate?
+## Q. What are different ways to disable hibernate second level cache?
+## Q. What is ORM metadata?
+## Q. Which one is the default transaction factory in hibernate?
+## Q. What is the role of JMX in hibernate?
+## Q. In how many ways objects can be identified in Hibernate?
+## Q. What different fetching strategies are of hibernate?
+## Q. How mapping of java objects is done with database tables?
+## Q. What are derived properties in hibernate?
+## Q. What is the use of version property in hibernate?
+## Q. What is attribute oriented programming?
+## Q. What is the use of session.lock() in hibernate?
+## Q. What the three inheritance models are of hibernate?
+## Q. What is general hibernate flow using RDBMS?
+## Q. What is difference between managed associations and hibernate associations?
+## Q. What are the inheritance mapping strategies?
+## Q. What is automatic dirty checking in hibernate?
+## Q. Explain Hibernate configuration file and Hibernate mapping file?
