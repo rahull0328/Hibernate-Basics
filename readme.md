@@ -3022,7 +3022,75 @@ With the above configuration, your log file might contain:
 </div>
 
 ## Q. What are the technologies that are supported by Hibernate?
+
+**Answer:** Hibernate is a powerful ORM (Object-Relational Mapping) framework for Java, and it supports integration with several key technologies and frameworks to enhance enterprise application development.
+
+**✅ Supported Technologies:**
+
+1. Java/J2EE
+Hibernate is written in Java and works seamlessly with Java SE and Java EE applications.
+
+2. JDBC (Java Database Connectivity)
+Hibernate internally uses JDBC to interact with relational databases. It abstracts the boilerplate JDBC code and provides a cleaner API.
+
+3. JPA (Java Persistence API)
+Hibernate implements the JPA specification, allowing developers to write portable and standard persistence code.
+
+4. Spring Framework
+Hibernate integrates well with Spring for dependency injection, transaction management, and simplified configuration.
+
+5. Servlets and JSP
+Hibernate can be used in web applications built using Servlets and JSP for data persistence.
+
+6. Struts Framework
+Hibernate can be integrated with Struts to handle persistence in MVC-based web applications.
+
+7. EJB (Enterprise JavaBeans)
+Hibernate can also work within EJB containers for enterprise applications.
+
+8. Various Databases
+Hibernate supports all major relational databases like MySQL, PostgreSQL, Oracle, SQL Server, H2, and more.
+
+9. Caching Frameworks
+Hibernate supports second-level caching using frameworks like Ehcache, Infinispan, or OSCache.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What is your understanding of Hibernate proxy?
+
+**Answer:** In Hibernate, a proxy is a placeholder object created by Hibernate instead of fetching the actual entity data immediately. It is mainly used to support lazy loading, which means that the associated entity data is only fetched when it’s accessed for the first time.
+
+**🔍 How It Works:**
+
+- When you retrieve an entity using session.load() instead of session.get(), Hibernate returns a proxy object.
+
+- This proxy is a subclass of your entity and contains just the entity’s identifier (primary key).
+
+- When any non-identifier method is called on the proxy, Hibernate fetches the actual data from the database.
+
+```java
+Student student = session.load(Student.class, 1); // Returns proxy, not actual object
+
+// At this point, no SQL query is executed yet
+System.out.println(student.getId()); // Uses proxy (no DB hit)
+
+// When accessing other properties, Hibernate fetches data from DB
+System.out.println(student.getName()); // SQL query executed here
+```
+**Benefits of Hibernate Proxy:**
+
+- Improves performance by loading data only when needed.
+
+- Reduces memory usage for large object graphs.
+
+- Helps in managing associations without unnecessary joins.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. Can you explain Hibernate callback interfaces?
 ## Q. How to create database applications in Java with the use of Hibernate?
 ## Q. Can you share your views on mapping description files?
