@@ -3092,6 +3092,103 @@ System.out.println(student.getName()); // SQL query executed here
 </div>
 
 ## Q. Can you explain Hibernate callback interfaces?
+
+**Answer:** Hibernate provides callback interfaces that allow developers to intercept and respond to specific lifecycle events of entity objects. These callbacks are useful for performing custom logic before or after an entity is persisted, updated, deleted, or loaded.
+
+**🧩 Common Callback Interfaces:**
+
+| Interface                         | Description                                                                   |
+| --------------------------------- | ----------------------------------------------------------------------------- |
+| `org.hibernate.Callback`          | Marker interface for callback-enabled classes.                                |
+| `org.hibernate.classic.Lifecycle` | Provides methods like `onSave()`, `onUpdate()`, `onDelete()`, and `onLoad()`. |
+| `org.hibernate.Interceptor`       | Used to intercept and customize persistence operations globally.              |
+| `org.hibernate.event.*`           | Event listeners for specific entity lifecycle events.                         |
+
+**Example: Using Lifecycle Interface**
+
+```java
+import org.hibernate.classic.Lifecycle;
+import org.hibernate.Session;
+import org.hibernate.HibernateException;
+import java.io.Serializable;
+
+public class Student implements Lifecycle {
+    private int id;
+    private String name;
+
+    // Getters and Setters
+
+    @Override
+    public boolean onSave(Session s) throws HibernateException {
+        System.out.println("Before saving student: " + name);
+        return false; // return true to veto the save
+    }
+
+    @Override
+    public boolean onUpdate(Session s) throws HibernateException {
+        System.out.println("Before updating student: " + name);
+        return false;
+    }
+
+    @Override
+    public boolean onDelete(Session s) throws HibernateException {
+        System.out.println("Before deleting student: " + name);
+        return false;
+    }
+
+    @Override
+    public void onLoad(Session s, Serializable id) throws HibernateException {
+        System.out.println("Student loaded with ID: " + id);
+    }
+}
+```
+**Explanation:**
+
+- onSave() is called before the entity is saved.
+
+- onUpdate() is called before the entity is updated.
+
+- onDelete() is called before the entity is deleted.
+
+- onLoad() is called after the entity is loaded from the database.
+
+**Example: Using Interceptor:**
+
+```java
+import org.hibernate.EmptyInterceptor;
+import org.hibernate.type.Type;
+import java.io.Serializable;
+
+public class MyInterceptor extends EmptyInterceptor {
+    @Override
+    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames, Type[] types) {
+        System.out.println("Entity is being saved: " + entity.getClass().getName());
+        return super.onSave(entity, id, state, propertyNames, types);
+    }
+}
+```
+
+**Then register the interceptor:**
+
+```java
+Session session = sessionFactory
+    .withOptions()
+    .interceptor(new MyInterceptor())
+    .openSession();
+```
+
+**Why Use Callback Interfaces?**
+
+- Automate logging or auditing of entity lifecycle events.
+
+- Perform validation or transformation before persistence.
+
+- Trigger external processes or notifications on entity state changes.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How to create database applications in Java with the use of Hibernate?
 ## Q. Can you share your views on mapping description files?
 ## Q. What are your thoughts on file mapping in Hibernate?
