@@ -3190,6 +3190,109 @@ Session session = sessionFactory
 </div>
 
 ## Q. How to create database applications in Java with the use of Hibernate?
+
+**Answer:** Creating database applications with Hibernate involves using its powerful ORM (Object-Relational Mapping) capabilities to map Java objects to relational database tables. Hibernate eliminates the need for writing complex JDBC code and provides an abstraction layer to interact with the database in an object-oriented way.
+
+**🧩 Steps to Create a Database Application using Hibernate:**
+
+1. Add Hibernate Dependencies
+
+- If using Maven, include the following dependency:
+
+```xml
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>5.6.15.Final</version>
+</dependency>
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>8.0.33</version>
+</dependency>
+```
+
+2. Create the Hibernate Configuration File (hibernate.cfg.xml)
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC 
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/hibernatedb</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">password</property>
+
+        <!-- Hibernate settings -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="show_sql">true</property>
+
+        <!-- Mapping class -->
+        <mapping class="com.example.Student"/>
+    </session-factory>
+</hibernate-configuration>
+```
+
+3. Create an Entity Class
+
+```java
+import javax.persistence.*;
+
+@Entity
+@Table(name = "students")
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "email")
+    private String email;
+
+    // Getters and Setters
+}
+```
+
+4. Create the Main Class
+
+```java
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class MainApp {
+    public static void main(String[] args) {
+        SessionFactory factory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        Session session = factory.openSession();
+
+        Student student = new Student();
+        student.setName("John Doe");
+        student.setEmail("john@example.com");
+
+        session.beginTransaction();
+        session.save(student);
+        session.getTransaction().commit();
+
+        session.close();
+        factory.close();
+    }
+}
+```
+
+##### Result: A record is automatically inserted into the students table without writing a single SQL query.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. Can you share your views on mapping description files?
 ## Q. What are your thoughts on file mapping in Hibernate?
 ## Q. Can you explain version field?
