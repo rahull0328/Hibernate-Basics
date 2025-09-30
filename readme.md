@@ -3294,6 +3294,58 @@ public class MainApp {
 </div>
 
 ## Q. Can you share your views on mapping description files?
+
+**Answer:** In Hibernate, mapping description files are XML files (commonly named with the .hbm.xml extension) that describe how a Java class maps to a database table. Although modern Hibernate applications often use annotations for mapping, mapping description files are still widely used, especially in legacy systems or when annotations are not preferred.
+
+**Purpose of Mapping Description Files:**
+
+- Define the relationship between Java classes and database tables.
+
+- Map class fields to table columns.
+
+- Specify primary keys, foreign keys, and constraints.
+
+- Describe relationships (one-to-one, one-to-many, many-to-many).
+
+- Provide flexibility to change mapping without modifying source code.
+
+**Example: Mapping File (Student.hbm.xml):**
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.example.Student" table="students">
+        <id name="id" column="id">
+            <generator class="increment"/>
+        </id>
+        <property name="name" column="name" type="string"/>
+        <property name="email" column="email" type="string"/>
+    </class>
+</hibernate-mapping>
+```
+
+And add the mapping to the configuration file:
+
+```xml
+<mapping resource="com/example/Student.hbm.xml"/>
+```
+
+**Advantages of Mapping Description Files:**
+
+- Separation of concerns: Keeps mapping details out of source code.
+
+- Flexibility: Easy to change mappings without recompiling code.
+
+- Legacy support: Useful for projects that started before annotations existed.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What are your thoughts on file mapping in Hibernate?
 ## Q. Can you explain version field?
 ## Q. What are your views on the function addClass?
