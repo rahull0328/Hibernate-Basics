@@ -3347,6 +3347,61 @@ And add the mapping to the configuration file:
 </div>
 
 ## Q. What are your thoughts on file mapping in Hibernate?
+
+**Answer:** File mapping in Hibernate refers to the process of linking Java classes with database tables using an external mapping file (usually .hbm.xml). It is an essential part of Hibernate’s ORM mechanism, especially in scenarios where annotation-based mapping is not desired.
+
+**Key Points on File Mapping:**
+
+1. Decouples Code and Mapping:
+
+- File mapping allows developers to define mapping details externally, enabling them to modify mappings without touching the Java code.
+
+2. Supports Complex Mappings:
+
+- Mapping files can describe advanced relationships like composite keys, embedded objects, and inheritance hierarchies.
+
+3. Useful in Large Projects:
+
+- When multiple developers work on a project, keeping mapping definitions separate helps maintain cleaner and more manageable code.
+
+4. Configuration Flexibility:
+
+- You can switch between databases or modify table structures by simply changing the mapping file.
+
+**Example of File Mapping for Relationships:**
+
+```xml
+<class name="com.example.Department" table="departments">
+    <id name="id" column="dept_id">
+        <generator class="increment"/>
+    </id>
+    <property name="name" column="dept_name"/>
+
+    <set name="employees" table="employees" inverse="true" cascade="all">
+        <key column="dept_id"/>
+        <one-to-many class="com.example.Employee"/>
+    </set>
+</class>
+```
+
+**Explanation:**
+
+- The above mapping defines a one-to-many relationship between Department and Employee using a set.
+
+- This mapping is stored externally and can be modified without changing the Java classes.
+
+**Summary:**
+
+- Creating a database application with Hibernate involves configuring hibernate.cfg.xml, defining entity classes, and writing simple Java code to persist data — all without writing SQL queries.
+
+- Mapping description files provide a powerful and flexible way to define how Java objects map to database tables, supporting relationships, keys, and constraints.
+
+- File mapping in Hibernate is especially useful in large projects, legacy systems, and scenarios where developers want to keep mapping logic separate from Java code.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. Can you explain version field?
 ## Q. What are your views on the function addClass?
 ## Q. Can you explain the role of addDirectory() and addjar() methods?
