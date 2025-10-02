@@ -3403,6 +3403,68 @@ And add the mapping to the configuration file:
 </div>
 
 ## Q. Can you explain version field?
+
+**Answer:** In Hibernate, the version field is a special column used to implement optimistic locking, which helps prevent concurrent modification issues when multiple transactions try to update the same row in the database at the same time.
+
+Optimistic locking works on the assumption that multiple transactions can frequently complete without interfering with each other. However, to detect conflicts when they occur, Hibernate uses a version column that is automatically checked and updated with each modification.
+
+**How It Works:**
+
+- When a record is first inserted, the version column is initialized (typically to 0).
+
+- Each time the entity is updated, Hibernate increments the version number by 1.
+
+- Before committing an update, Hibernate checks if the version number in memory matches the one in the database:
+
+1. ✅ If they match → the update proceeds and the version is incremented.
+
+2. ❌ If they don’t match → Hibernate throws an OptimisticLockException, indicating another transaction modified the entity.
+
+**Example: Using @Version Annotation:**
+
+```java
+import javax.persistence.*;
+
+@Entity
+@Table(name = "students")
+public class Student {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    private String name;
+    private String email;
+
+    @Version
+    private int version;
+
+    // Getters and Setters
+}
+```
+
+**Explanation:**
+
+- The @Version annotation marks the version field.
+
+- Hibernate automatically manages this column — you don’t need to update it manually.
+
+- It ensures data consistency and prevents lost updates in concurrent transactions.
+
+**Advantages of Using version:**
+
+- Prevents lost updates in concurrent transactions.
+
+- Ensures data integrity without explicit locking.
+
+- Provides a lightweight concurrency control mechanism.
+
+- Works automatically once configured — no extra logic needed.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What are your views on the function addClass?
 ## Q. Can you explain the role of addDirectory() and addjar() methods?
 ## Q. What do you understand by Hibernate tuning?
