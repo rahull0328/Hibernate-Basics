@@ -3466,6 +3466,79 @@ public class Student {
 </div>
 
 ## Q. What are your views on the function addClass?
+
+**Answer:** The addClass() function in Hibernate is a method used in the Configuration class to register annotated entity classes programmatically with the Hibernate configuration. Instead of defining all mappings in the hibernate.cfg.xml file or using mapping files, you can dynamically add annotated classes using addClass().
+
+##### This approach is useful when:
+
+- You want to configure Hibernate programmatically.
+
+- You don’t want to modify XML configuration files.
+
+- Your application dynamically determines which entities to include.
+
+**Syntax**
+
+```java
+Configuration configuration = new Configuration();
+configuration.configure("hibernate.cfg.xml");
+configuration.addClass(Student.class);
+```
+
+**Explanation:**
+
+- configure() loads the configuration from the hibernate.cfg.xml file.
+
+- addClass(Student.class) tells Hibernate that the Student class is an entity it should manage.
+
+**Example: Complete Usage**
+
+```java
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class MainApp {
+    public static void main(String[] args) {
+        Configuration configuration = new Configuration();
+        configuration.configure("hibernate.cfg.xml");
+        configuration.addClass(Student.class); // Registering annotated entity class
+
+        SessionFactory sessionFactory = configuration.buildSessionFactory();
+        Session session = sessionFactory.openSession();
+
+        Student student = new Student();
+        student.setName("Alice");
+        student.setEmail("alice@example.com");
+
+        session.beginTransaction();
+        session.save(student);
+        session.getTransaction().commit();
+
+        session.close();
+        sessionFactory.close();
+    }
+}
+```
+
+**Advantages of addClass()**
+
+- Dynamic configuration: Add entity classes at runtime without editing XML.
+
+- Code-centric approach: Keeps configuration within Java code.
+
+- Simplifies deployment: Especially useful in frameworks or tools that generate entity classes dynamically.
+
+**Summary:**
+
+- The version field is essential for implementing optimistic locking in Hibernate. It helps ensure data consistency and prevents concurrent update conflicts by automatically tracking changes to an entity.
+
+- The addClass() function in Hibernate allows developers to programmatically register annotated entity classes, providing a more flexible and dynamic way of configuring Hibernate without relying solely on XML mapping files.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. Can you explain the role of addDirectory() and addjar() methods?
 ## Q. What do you understand by Hibernate tuning?
 ## Q. What is your understanding of Light Object Mapping?
