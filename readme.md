@@ -3540,6 +3540,95 @@ public class MainApp {
 </div>
 
 ## Q. Can you explain the role of addDirectory() and addjar() methods?
+
+**Answer:** In Hibernate, the addDirectory() and addJar() methods are part of the Configuration class and are used to add mapping resources dynamically from specific locations — such as directories or JAR files — to the Hibernate configuration. They provide a flexible and programmatic way to load entity mapping metadata without hardcoding individual class or mapping file references in your configuration.
+
+1. **addDirectory() Method**
+
+The addDirectory() method is used to add a directory containing Hibernate mapping files (.hbm.xml) to the configuration. This is especially useful when you have multiple mapping files organized in a specific folder rather than adding them individually.
+
+**Syntax:**
+
+```java
+Configuration cfg = new Configuration();
+cfg.configure("hibernate.cfg.xml");
+cfg.addDirectory(new File("src/main/resources/mappings"));
+```
+
+**Explanation:**
+
+- addDirectory() scans the given directory for all mapping files.
+
+- All .hbm.xml files present in the specified folder are automatically added to the Hibernate configuration.
+
+- This eliminates the need to manually list each mapping file in hibernate.cfg.xml.
+
+**Example: Using addDirectory()**
+
+1. Suppose you have the following directory structure:
+
+src/main/resources/mappings/
+│
+├── Student.hbm.xml
+├── Teacher.hbm.xml
+└── Course.hbm.xml
+
+2. Then you can load them all as:
+
+```java
+Configuration cfg = new Configuration();
+cfg.configure("hibernate.cfg.xml");
+cfg.addDirectory(new File("src/main/resources/mappings"));
+SessionFactory factory = cfg.buildSessionFactory();
+```
+
+#### Result: All three mapping files (Student.hbm.xml, Teacher.hbm.xml, Course.hbm.xml) are registered with Hibernate automatically.
+
+**Benefits of addDirectory()**
+
+- Simplifies the process of adding multiple mapping files.
+
+- Avoids manually specifying each .hbm.xml in hibernate.cfg.xml.
+
+- Improves maintainability and scalability when many mapping files are involved.
+
+2. **addJar() Method**
+
+The addJar() method is used to add a JAR file that contains mapping files or annotated entity classes to the Hibernate configuration. This is particularly useful in modular applications or when mappings are packaged into separate JARs.
+
+**Syntax**
+
+```java
+Configuration cfg = new Configuration();
+cfg.configure("hibernate.cfg.xml");
+cfg.addJar(new File("lib/mappings.jar"));
+```
+
+**Explanation:**
+
+- addJar() scans the specified JAR file for any .hbm.xml mapping files or annotated entity classes.
+
+- These mappings are then automatically registered with the Hibernate SessionFactory.
+
+**Comparison: addDirectory() vs addJar()**
+
+| Feature         | `addDirectory()`                                        | `addJar()`                                                         |
+| --------------- | ------------------------------------------------------- | ------------------------------------------------------------------ |
+| Purpose         | Adds mapping files from a **directory**                 | Adds mapping files or entities from a **JAR file**                 |
+| Input           | Directory path (`File` object)                          | JAR file (`File` object)                                           |
+| Use Case        | Useful during development when mappings are in a folder | Useful in production or modular setups where mappings are packaged |
+| Supported Files | `.hbm.xml` files                                        | `.hbm.xml` files and annotated classes                             |
+
+**Summary**
+
+- addDirectory(): Loads all .hbm.xml mapping files from a given directory, making it easy to manage multiple mappings without editing the configuration file individually.
+
+- addJar(): Loads all mapping files or annotated entities from a JAR file, making it ideal for modular applications or scenarios where mappings are packaged separately.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What do you understand by Hibernate tuning?
 ## Q. What is your understanding of Light Object Mapping?
 ## Q. How does Hibernate create the database connection?
