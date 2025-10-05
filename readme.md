@@ -3630,6 +3630,55 @@ cfg.addJar(new File("lib/mappings.jar"));
 </div>
 
 ## Q. What do you understand by Hibernate tuning?
+
+**Answer:** Hibernate tuning refers to the process of optimizing the performance and efficiency of Hibernate-based applications. Since Hibernate is an Object-Relational Mapping (ORM) framework that interacts with the database, poor configuration or inefficient queries can lead to performance bottlenecks. Tuning Hibernate ensures that the application runs faster, uses fewer resources, and handles large datasets more effectively.
+
+**Key Techniques for Hibernate Tuning:**
+
+1. Use Lazy Loading Wisely
+
+```java
+@OneToMany(fetch = FetchType.LAZY)
+private List<Order> orders;
+```
+
+2. Batch Fetching
+
+```xml
+<set name="orders" batch-size="20">
+    <key column="customer_id"/>
+    <one-to-many class="Order"/>
+</set>
+```
+
+3. Second-Level and Query Caching
+
+```xml
+<class-cache usage="read-write" class="com.example.Customer"/>
+```
+
+4. Use Pagination for Large Result Sets
+
+```java
+Query query = session.createQuery("from Employee");
+query.setFirstResult(0);
+query.setMaxResults(20);
+```
+
+5. Optimize Queries
+
+```java
+Query query = session.createQuery("SELECT e.name FROM Employee e");
+```
+
+**Summary**
+
+Hibernate tuning is crucial for building scalable, high-performance database applications. By carefully managing how data is loaded, cached, queried, and indexed — and by leveraging features like batch fetching, lazy loading, and caching — you can significantly improve your application’s efficiency and responsiveness.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What is your understanding of Light Object Mapping?
 ## Q. How does Hibernate create the database connection?
 ## Q. What are possible ways to configure object-table mapping?
