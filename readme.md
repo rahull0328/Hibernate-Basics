@@ -3810,6 +3810,106 @@ Light Object Mapping is a minimalistic and straightforward approach in Hibernate
 
 ## Q. How does Hibernate create the database connection?
 
+**Answer:** Hibernate creates a database connection by using the configuration details provided in its configuration file (usually hibernate.cfg.xml) or through Java-based configuration. It uses these settings to build a SessionFactory, which in turn produces Session objects. These Session objects are responsible for interacting with the database.
+
+**In simple terms:**
+
+1. Hibernate reads the database connection properties (like URL, username, password, driver class).
+
+2. It uses these details to configure the JDBC connection internally.
+
+3. A SessionFactory is built from this configuration.
+
+4. From the SessionFactory, Hibernate creates a Session, which acts as a bridge between the application and the database.
+
+**Steps Involved in Database Connection Creation**
+
+1. Load Configuration:
+- Hibernate reads the connection details from hibernate.cfg.xml or a Java Configuration class.
+
+2. Build SessionFactory:
+- Using the configuration, Hibernate builds a SessionFactory, which is a heavy-weight object and should be created once per application.
+
+3. Open Session:
+- A Session is a lightweight object created from the SessionFactory. It represents a single unit of work with the database.
+
+4. Obtain JDBC Connection:
+- The Session uses the underlying JDBC connection to execute SQL queries and manage transactions.
+
+**Example: Using hibernate.cfg.xml**
+
+1. Configuration File (hibernate.cfg.xml):
+
+```xml
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/mydb</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">password</property>
+
+        <!-- Hibernate dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+
+        <!-- Show SQL -->
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- Mapped class -->
+        <mapping class="com.example.Student"/>
+
+    </session-factory>
+</hibernate-configuration>
+```
+
+2. Java Code to Create Database Connection:
+
+```java
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class HibernateConnectionExample {
+    public static void main(String[] args) {
+        // Step 1: Load configuration and build SessionFactory
+        SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+
+        // Step 2: Open a session
+        Session session = sessionFactory.openSession();
+
+        // Step 3: Begin transaction and interact with DB
+        session.beginTransaction();
+
+        // Perform database operations here
+
+        session.getTransaction().commit();
+        session.close();
+        sessionFactory.close();
+    }
+}
+```
+
+**How It Works Internally**
+
+- Hibernate uses the JDBC driver defined in the configuration.
+
+- It manages the connection pooling and transaction handling internally.
+
+- The Session acts as a wrapper around the JDBC connection, allowing developers to work with objects instead of SQL statements.
+
+**Summary:**
+
+Hibernate creates a database connection by reading configuration properties, building a SessionFactory, and generating Session objects that internally manage JDBC connections. This approach abstracts away the complexity of connection management, allowing developers to focus on object manipulation rather than low-level database operations.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What are possible ways to configure object-table mapping?
 
 ## Q. Which annotation is used to declare a class as a hibernate bean?
