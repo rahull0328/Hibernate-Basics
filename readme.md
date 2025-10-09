@@ -3912,6 +3912,109 @@ Hibernate creates a database connection by reading configuration properties, bui
 
 ## Q. What are possible ways to configure object-table mapping?
 
+**Answer:** In Hibernate, object-table mapping defines how a Java class (object) is linked or mapped to a database table.
+This mapping tells Hibernate which table corresponds to which class and how class attributes correspond to table columns.
+
+There are three main ways to configure object-table mapping in Hibernate:
+
+1. XML-Based Mapping (Using .hbm.xml file)
+
+In this traditional method, mappings are defined in an external XML file — typically named ClassName.hbm.xml.
+This file explicitly specifies how each class property maps to the database column.
+
+**Example:**
+
+- Student.hbm.xml
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.example.Student" table="student">
+        <id name="id" column="id">
+            <generator class="increment"/>
+        </id>
+        <property name="name" column="name"/>
+        <property name="course" column="course"/>
+    </class>
+</hibernate-mapping>
+```
+
+- Configuration File (hibernate.cfg.xml):
+
+```xml
+<mapping resource="com/example/Student.hbm.xml"/>
+```
+
+2. Annotation-Based Mapping (Using JPA/Hibernate Annotations)
+
+In this modern approach, mappings are defined directly in the Java class using annotations provided by Hibernate or JPA.
+This method makes the code more readable and reduces the need for separate XML files.
+
+- Example:
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Column;
+
+@Entity
+@Table(name = "student")
+public class Student {
+
+    @Id
+    private int id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "course")
+    private String course;
+
+    // Getters and setters
+}
+```
+
+- Configuration File (hibernate.cfg.xml):
+
+```xml
+<mapping class="com.example.Student"/>
+```
+Annotation-based mapping is the most commonly used method in modern Hibernate and JPA applications.
+
+3. Programmatic (Code-Based) Mapping
+
+Hibernate also supports defining mappings programmatically using the Configuration class or metadata APIs.
+This approach is less common but useful when mapping needs to be generated dynamically at runtime.
+
+- Example:
+
+```java
+import org.hibernate.cfg.Configuration;
+
+Configuration cfg = new Configuration();
+cfg.addAnnotatedClass(Student.class);
+cfg.setProperty("hibernate.connection.url", "jdbc:mysql://localhost:3306/mydb");
+cfg.setProperty("hibernate.connection.username", "root");
+cfg.setProperty("hibernate.connection.password", "password");
+```
+
+This approach is ideal when you want flexibility and prefer not to rely on XML or static annotations — for example, in dynamically generated entity mappings.
+
+**Summary:**
+
+| **Method**                   | **Description**                                             | **When to Use**                                    |
+| ---------------------------- | ----------------------------------------------------------- | -------------------------------------------------- |
+| **XML-Based Mapping**        | Defines mapping externally in `.hbm.xml` files.             | When you want separation between code and mapping. |
+| **Annotation-Based Mapping** | Defines mapping directly in Java classes using annotations. | For modern applications (recommended).             |
+| **Programmatic Mapping**     | Defines mapping through code using Hibernate APIs.          | When mappings are generated dynamically.           |
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. Which annotation is used to declare a class as a hibernate bean?
 
 ## Q. How do I specify table name linked to an entity using annotation?
