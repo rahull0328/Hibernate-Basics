@@ -4017,6 +4017,82 @@ This approach is ideal when you want flexibility and prefer not to rely on XML o
 
 ## Q. Which annotation is used to declare a class as a hibernate bean?
 
+**Answer:** In Hibernate (and JPA), the annotation used to declare a class as a Hibernate bean (entity) is:
+
+```java
+@Entity
+```
+
+**Explanation:**
+
+- The @Entity annotation is used to mark a Java class as a persistent entity, meaning Hibernate will map this class to a corresponding table in the database.
+
+- Once a class is annotated with @Entity, Hibernate treats it as a managed object, capable of being saved, updated, deleted, and retrieved from the database.
+
+**Example:**
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Student {
+
+    @Id
+    private int id;
+    private String name;
+    private String course;
+
+    // Getters and setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
+}
+```
+
+**Key Points About @Entity:**
+
+1. The @Entity annotation is part of javax.persistence (JPA specification).
+
+2. The class annotated with @Entity must have a primary key, annotated with @Id.
+
+3. The class must have a default (no-argument) constructor.
+
+4. The class name (by default) is used as the table name — but you can customize it using the @Table annotation.
+
+**Example with Custom Table Name:**
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+
+@Entity
+@Table(name = "student_info")
+public class Student {
+
+    @Id
+    private int id;
+    private String name;
+}
+```
+Here, the entity Student is mapped to the table student_info.
+
+**summary:**
+
+| **Annotation** | **Purpose**                                                 |
+| -------------- | ----------------------------------------------------------- |
+| `@Entity`      | Declares a class as a Hibernate/JPA entity (Hibernate bean) |
+| `@Table`       | Specifies the table name if it differs from the class name  |
+| `@Id`          | Marks a field as the primary key of the entity              |
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How do I specify table name linked to an entity using annotation?
 
 ## Q. How does a variable in an entity connect to the database column?
