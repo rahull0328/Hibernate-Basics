@@ -4095,6 +4095,105 @@ Here, the entity Student is mapped to the table student_info.
 
 ## Q. How do I specify table name linked to an entity using annotation?
 
+**Answer:** In Hibernate (and JPA), you can specify the table name linked to an entity using the @Table annotation.
+This annotation is used along with the @Entity annotation to define the exact database table that the entity class should map to.
+
+**Syntax:**
+
+```java
+@Entity
+@Table(name = "table_name")
+public class ClassName {
+    // fields, constructors, and methods
+}
+```
+
+- @Entity → Declares the class as a persistent Hibernate entity.
+
+- @Table(name = "table_name") → Specifies the table in the database that this entity is mapped to.
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+
+@Entity
+@Table(name = "student_info")
+public class Student {
+
+    @Id
+    private int id;
+    private String name;
+    private String course;
+
+    // Getters and setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
+}
+```
+
+**In this example:**
+
+- The Java class Student is marked as an entity using @Entity.
+
+- The database table name is explicitly set to student_info using @Table(name = "student_info").
+
+- If the @Table annotation is not specified, Hibernate automatically assumes the table name is the same as the class name (e.g., Student → student).
+
+**Example without @Table:**
+
+```java
+@Entity
+public class Employee {
+    @Id
+    private int id;
+    private String name;
+}
+```
+Here, Hibernate will assume the table name is Employee by default.
+
+**Additional Attributes of @Table:**
+
+The @Table annotation can also include other optional attributes:
+
+| **Attribute**       | **Description**                                      |
+| ------------------- | ---------------------------------------------------- |
+| `name`              | Specifies the table name.                            |
+| `catalog`           | Defines the catalog of the table.                    |
+| `schema`            | Defines the database schema that contains the table. |
+| `uniqueConstraints` | Defines unique constraints on columns.               |
+
+**Example:**
+
+```java
+@Entity
+@Table(
+    name = "employee_details",
+    schema = "public",
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"email"})}
+)
+public class Employee {
+    @Id
+    private int id;
+    private String email;
+}
+```
+
+**Summary:**
+
+| **Annotation**                | **Purpose**                                         |
+| ----------------------------- | --------------------------------------------------- |
+| `@Entity`                     | Declares a class as a Hibernate entity              |
+| `@Table(name = "table_name")` | Specifies the exact table name linked to the entity |
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How does a variable in an entity connect to the database column?
 
 ## Q. How do we specify a different column name for the variables mapping?
