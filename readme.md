@@ -4196,6 +4196,104 @@ public class Employee {
 
 ## Q. How does a variable in an entity connect to the database column?
 
+
+**Answer:** In Hibernate, a variable (field) in an entity class is mapped to a column in the database table using either annotations or XML mapping files. This mapping allows Hibernate to know which database column corresponds to which class field, enabling automatic data persistence and retrieval.
+
+1. Using Annotations
+
+The most common approach is to use the @Column annotation along with the @Id annotation for primary keys.
+
+**Syntax**
+
+```java
+@Column(name = "column_name")
+private DataType variableName;
+```
+
+- @Column(name = "column_name") → Maps the variable to a specific column in the table.
+
+- @Id → Marks the variable as the primary key column.
+
+**Example:**
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "student")
+public class Student {
+
+    @Id
+    @Column(name = "student_id")
+    private int id;
+
+    @Column(name = "student_name")
+    private String name;
+
+    @Column(name = "student_course")
+    private String course;
+
+    // Getters and setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
+}
+```
+
+**Explanation:**
+
+- The id field is mapped to the student_id column.
+
+- The name field is mapped to the student_name column.
+
+- The course field is mapped to the student_course column.
+
+- Hibernate automatically manages reading and writing these values to the corresponding database columns.
+
+2. Using XML Mapping (.hbm.xml)
+
+Alternatively, you can define the mapping in an XML file.
+
+```xml
+<class name="com.example.Student" table="student">
+    <id name="id" column="student_id">
+        <generator class="increment"/>
+    </id>
+    <property name="name" column="student_name"/>
+    <property name="course" column="student_course"/>
+</class>
+```
+
+**Key Points**
+
+1. Each entity variable is mapped to a specific column in the table.
+
+2. The @Column annotation allows you to:
+
+- Specify column name (name)
+
+- Define column length (length)
+
+- Define constraints like nullable, unique
+
+3. If @Column is not specified, Hibernate automatically maps the field name to a column with the same name.
+
+**Summary:**
+
+Variables in an entity connect to database columns through annotations (@Column) or XML mapping files.
+
+Hibernate uses this mapping to persist objects to the database and retrieve data as Java objects, abstracting away SQL queries.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How do we specify a different column name for the variables mapping?
 
 ## Q. How do we specify a variable to be primary key for the table?
