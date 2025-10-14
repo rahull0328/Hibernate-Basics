@@ -4296,6 +4296,105 @@ Hibernate uses this mapping to persist objects to the database and retrieve data
 
 ## Q. How do we specify a different column name for the variables mapping?
 
+**Answer:** In Hibernate (and JPA), you can specify a different column name for a variable (field) in an entity using the @Column annotation.
+By default, Hibernate maps the variable name directly to the column name with the same name, but when you want to customize or override it, you use the name attribute of the @Column annotation.
+
+**Syntax:**
+
+```java
+@Column(name = "custom_column_name")
+private DataType variableName;
+```
+
+name → defines the actual column name in the database table that should be mapped to this field.
+
+**Example:**
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "student")
+public class Student {
+
+    @Id
+    @Column(name = "student_id")   // Custom column name for ID
+    private int id;
+
+    @Column(name = "student_name") // Custom column name for Name
+    private String name;
+
+    @Column(name = "student_course") // Custom column name for Course
+    private String course;
+
+    // Getters and Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
+}
+```
+
+**Explanation:**
+
+- The Java variable id maps to the database column student_id.
+
+- The variable name maps to student_name.
+
+- The variable course maps to student_course.
+
+This allows Hibernate to understand which exact column each field corresponds to, even if the names differ.
+
+**Without @Column:**
+
+If you do not specify the @Column annotation, Hibernate assumes that the column name is the same as the variable name.
+
+```java
+@Entity
+public class Student {
+    @Id
+    private int id;    // Maps to column "id"
+    private String name;  // Maps to column "name"
+}
+```
+
+**Additional @Column Attributes:**
+
+Besides name, the @Column annotation provides several optional attributes to control column behavior:
+
+| **Attribute** | **Description**                                      |
+| ------------- | ---------------------------------------------------- |
+| `name`        | Specifies the actual column name.                    |
+| `nullable`    | Defines whether the column can accept `NULL` values. |
+| `unique`      | Ensures the column values are unique.                |
+| `length`      | Sets the column length (used for `VARCHAR`).         |
+| `updatable`   | Defines whether the column is updatable.             |
+| `insertable`  | Defines whether the column is insertable.            |
+
+**Example:**
+
+```java
+@Column(name = "email_address", nullable = false, unique = true, length = 100)
+private String email;
+```
+
+**Summary:**
+
+- To specify a different column name for a variable, use the @Column(name = "custom_name") annotation.
+
+- If not specified, Hibernate uses the variable name as the column name by default.
+
+- @Column also provides additional attributes to control the behavior of the mapped column.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How do we specify a variable to be primary key for the table?
 
 ## Q. How do you configure the dialect in hibernate.cfg.xml?
