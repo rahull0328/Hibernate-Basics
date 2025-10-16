@@ -4397,6 +4397,41 @@ private String email;
 
 ## Q. How do we specify a variable to be primary key for the table?
 
+**Answer:** In Hibernate (or JPA), you can specify a variable to be the primary key of the table using the @Id annotation.
+
+**Example:**
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Student {
+    
+    @Id
+    private int studentId;
+    private String name;
+    private String course;
+    
+    // Getters and setters
+    public int getStudentId() {
+        return studentId;
+    }
+    public void setStudentId(int studentId) {
+        this.studentId = studentId;
+    }
+}
+```
+
+**Explanation:**
+
+- @Id → Marks the field as the primary key of the entity (table).
+- Hibernate uses this field to uniquely identify each recorded in the database table
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How do you configure the dialect in hibernate.cfg.xml?
 
 ## Q. How to configure the database URL and credentials in hibernate.cfg.xml?
