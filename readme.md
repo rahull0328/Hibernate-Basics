@@ -4434,6 +4434,90 @@ public class Student {
 
 ## Q. How do you configure the dialect in hibernate.cfg.xml?
 
+**Answer:** In Hibernate, the dialect specifies the SQL variant (flavor) that Hibernate should use to generate database-specific SQL queries.
+Each database (like MySQL, Oracle, PostgreSQL, etc.) has its own SQL syntax, and the Hibernate Dialect helps Hibernate understand which SQL commands to use for that particular database.
+
+You configure the dialect in the hibernate.cfg.xml file using the property:
+
+```xml
+<property name="hibernate.dialect">dialect_class_name</property>
+```
+
+**Example: Configuring Dialect in hibernate.cfg.xml**
+
+Here’s a sample configuration file for a MySQL database:
+
+```xml
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/mydb</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">password</property>
+
+        <!-- Hibernate dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+
+        <!-- Show SQL in console -->
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- Automatically create/update tables -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Mapping class -->
+        <mapping class="com.example.Student"/>
+
+    </session-factory>
+</hibernate-configuration>
+```
+
+**Explanation:**
+
+- This property tells Hibernate which database dialect to use.
+For example, Hibernate will use MySQL8Dialect for MySQL 8 databases, Oracle12cDialect for Oracle 12c, etc.
+
+```xml
+<property name="hibernate.dialect">
+```
+
+The dialect helps Hibernate generate database-specific SQL queries automatically.
+
+- Hibernate uses this dialect to:
+
+Generate SQL statements compatible with your database.
+
+Handle differences in data types, keywords, and query syntax between databases.
+
+**Common Hibernate Dialects:**
+
+| **Database** | **Dialect Class**                                          |
+| ------------ | ---------------------------------------------------------- |
+| MySQL 8      | `org.hibernate.dialect.MySQL8Dialect`                      |
+| MySQL 5      | `org.hibernate.dialect.MySQL5Dialect`                      |
+| Oracle 12c   | `org.hibernate.dialect.Oracle12cDialect`                   |
+| PostgreSQL   | `org.hibernate.dialect.PostgreSQLDialect`                  |
+| SQL Server   | `org.hibernate.dialect.SQLServerDialect`                   |
+| H2 Database  | `org.hibernate.dialect.H2Dialect`                          |
+| SQLite       | `org.hibernate.dialect.SQLiteDialect` (custom/third-party) |
+
+**Why Dialect Is Important ?**
+
+- Different databases have variations in SQL syntax.
+
+- The Hibernate dialect ensures that the generated SQL is compatible with the target database.
+
+- For example, LIMIT in MySQL vs TOP in SQL Server — the dialect handles such differences automatically.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How to configure the database URL and credentials in hibernate.cfg.xml?
 
 ## Q. How to configure the connection pool size?
