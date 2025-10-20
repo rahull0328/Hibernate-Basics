@@ -4520,6 +4520,63 @@ Handle differences in data types, keywords, and query syntax between databases.
 
 ## Q. How to configure the database URL and credentials in hibernate.cfg.xml?
 
+**Answer:** In Hibernate, the database connection details such as the URL, username, and password are configured inside the hibernate.cfg.xml file. This file is usually placed in the src/main/resources directory of your project and acts as the central configuration for Hibernate to establish a connection with the database.
+
+**Example Configuration:**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/studentdb</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">password123</property>
+
+        <!-- JDBC dialect for MySQL -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Automatically create/update tables -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Show SQL statements in the console -->
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- Mapping class -->
+        <mapping class="com.example.Student"/>
+    </session-factory>
+</hibernate-configuration>
+```
+
+**Explanation:**
+
+- Specifies the JDBC driver class to connect to the database.
+<property name="hibernate.connection.driver_class">
+
+- Defines the database URL (location of the database).
+<property name="hibernate.connection.url">
+Example: jdbc:mysql://localhost:3306/studentdb
+
+- These are the credentials used to log in to the database.
+<property name="hibernate.connection.username"> and <property name="hibernate.connection.password">
+
+- Tells Hibernate which SQL dialect to use for the selected database (e.g., MySQL, PostgreSQL, Oracle).
+<property name="hibernate.dialect">
+
+**Summary:**
+
+The hibernate.cfg.xml file acts as the bridge between your Java application and the database. It holds all essential connection parameters, making it easy for Hibernate to handle session creation and object-relational mapping automatically.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How to configure the connection pool size?
 
 ## Q. How do you configure folder scan for Hibernate beans?
