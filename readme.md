@@ -4579,6 +4579,91 @@ The hibernate.cfg.xml file acts as the bridge between your Java application and 
 
 ## Q. How to configure the connection pool size?
 
+**Answer:** In Hibernate, the connection pool size defines how many database connections can be maintained and reused by Hibernate at a given time. Connection pooling helps improve performance by reducing the overhead of repeatedly opening and closing database connections.
+
+You can configure the connection pool size in the hibernate.cfg.xml file using the property:
+
+```xml
+<property name="hibernate.connection.pool_size">10</property>
+```
+This example sets the pool size to 10 connections.
+
+**Example Configuration:**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+
+        <!-- Database connection settings -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/studentdb</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">password123</property>
+
+        <!-- Hibernate dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Connection pool size -->
+        <property name="hibernate.connection.pool_size">10</property>
+
+        <!-- Optional: Show SQL -->
+        <property name="hibernate.show_sql">true</property>
+
+        <mapping class="com.example.Student"/>
+    </session-factory>
+</hibernate-configuration>
+```
+
+**Explanation:**
+
+- Defines the maximum number of connections that can be created and maintained in the connection pool.
+<property name="hibernate.connection.pool_size">
+
+- Hibernate uses built-in connection pooling (suitable for small applications).
+For production-level applications, it’s recommended to use an external connection pool like C3P0, HikariCP, or Apache DBCP.
+
+**Example with C3P0 Connection Pool (Recommended):**
+
+```xml
+<!-- C3P0 connection pooling -->
+<property name="hibernate.c3p0.min_size">5</property>
+<property name="hibernate.c3p0.max_size">20</property>
+<property name="hibernate.c3p0.timeout">300</property>
+<property name="hibernate.c3p0.max_statements">50</property>
+<property name="hibernate.c3p0.idle_test_period">3000</property>
+```
+
+**Summary:**
+
+- The connection pool size determines how many active database connections Hibernate can maintain at a time.
+
+- It helps reduce the overhead of frequently opening and closing database connections.
+
+- Proper configuration of the pool size improves application performance, scalability, and resource utilization.
+
+- A small pool size may lead to connection delays when multiple users try to access the database simultaneously.
+
+- A very large pool size can cause memory overhead and exhaust database resources.
+
+- The default built-in connection pooling in Hibernate is simple and suitable only for small or development environments.
+
+- For production or high-load systems, it’s better to use a third-party connection pool such as C3P0, HikariCP, or Apache DBCP for advanced performance tuning.
+
+- These external pools provide advanced features like automatic connection testing, timeout handling, idle connection cleanup, and connection validation.
+
+- Fine-tuning pool parameters (like min/max size, timeout, and idle period) helps maintain a stable and efficient database connection layer.
+
+- Overall, connection pooling is a key aspect of Hibernate tuning and plays a vital role in optimizing database interactions.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How do you configure folder scan for Hibernate beans?
 
 ## Q. How to configure hibernate beans without Spring framework?
