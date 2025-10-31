@@ -4666,6 +4666,90 @@ For production-level applications, it’s recommended to use an external connect
 
 ## Q. How do you configure folder scan for Hibernate beans?
 
+**Answer:** In Hibernate, you can configure folder scanning (also known as package scanning) to automatically detect and register all entity classes (Hibernate beans) within a specific package or directory. This eliminates the need to manually list each entity class in the hibernate.cfg.xml file.
+
+**Example 1: Using AnnotationConfiguration (older Hibernate versions):**
+
+In earlier Hibernate versions, you could use AnnotationConfiguration to scan and add annotated entity classes dynamically:
+
+```java
+import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.SessionFactory;
+
+public class HibernateUtil {
+    private static final SessionFactory sessionFactory;
+
+    static {
+        try {
+            AnnotationConfiguration config = new AnnotationConfiguration();
+            config.configure("hibernate.cfg.xml");
+            
+            // Scans a specific folder/package for Hibernate beans
+            config.addPackage("com.example.model");
+            
+            sessionFactory = config.buildSessionFactory();
+        } catch (Throwable ex) {
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+}
+```
+
+**Example 2: Using addAnnotatedClass() and addPackage():**
+
+You can also specify entity classes or packages programmatically:
+
+```java
+Configuration configuration = new Configuration();
+configuration.configure("hibernate.cfg.xml");
+
+// Add a specific annotated class
+configuration.addAnnotatedClass(Student.class);
+
+// Or add an entire package
+configuration.addPackage("com.example.model");
+
+SessionFactory sessionFactory = configuration.buildSessionFactory();
+```
+
+**Example 3: Using persistence.xml (JPA-based configuration):**
+
+If you are using Hibernate with JPA, you can define the scanning package in the persistence.xml file:
+
+```xml
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.2">
+    <persistence-unit name="student_unit">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>com.example.model.Student</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+
+        <properties>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+        </properties>
+    </persistence-unit>
+</persistence>
+```
+When <exclude-unlisted-classes> is set to false, Hibernate automatically scans the package where the persistence.xml file is located for entity classes.
+
+**Explanation:**
+
+- Folder scanning automates entity detection, reducing manual configuration.
+
+- The addPackage() method allows Hibernate to register all annotated entity classes within a given package.
+
+- If you use JPA, Hibernate automatically scans the configured package unless explicitly told not to.
+
+- This approach keeps your project configuration cleaner and more scalable as the number of entities grows.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How to configure hibernate beans without Spring framework?
 
 ## Q. Is it possible to connect multiple database in a single Java application using Hibernate?
