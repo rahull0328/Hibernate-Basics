@@ -4752,6 +4752,148 @@ When <exclude-unlisted-classes> is set to false, Hibernate automatically scans t
 
 ## Q. How to configure hibernate beans without Spring framework?
 
+**Answer:** You can configure Hibernate beans (entities and session management) without using the Spring framework by setting up Hibernate manually using the hibernate.cfg.xml file and the Configuration class in Java.
+This approach allows Hibernate to function independently, handling ORM (Object Relational Mapping) without relying on Spring’s dependency injection or configuration support.
+
+**Steps to Configure Hibernate Beans Without Spring:**
+
+1. Create hibernate.cfg.xml Configuration File
+
+This XML file contains database connection details, dialect, and mappings for your Hibernate entities.
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+
+        <!-- Database connection properties -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/studentdb</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.connection.password">password123</property>
+
+        <!-- Hibernate dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Show SQL queries -->
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- Automatically create or update tables -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Mapping class -->
+        <mapping class="com.example.Student"/>
+
+    </session-factory>
+</hibernate-configuration>
+```
+
+2. Create a Hibernate Entity (Bean) Class
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Column;
+
+@Entity
+@Table(name = "student")
+public class Student {
+
+    @Id
+    @Column(name = "student_id")
+    private int id;
+
+    @Column(name = "student_name")
+    private String name;
+
+    @Column(name = "student_course")
+    private String course;
+
+    // Getters and Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
+}
+```
+
+3. Create Hibernate Utility Class
+
+This utility class initializes Hibernate, creates the SessionFactory, and provides sessions for database operations.
+
+```java
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class HibernateUtil {
+
+    private static SessionFactory sessionFactory;
+
+    static {
+        try {
+            // Load configuration and build SessionFactory
+            sessionFactory = new Configuration()
+                                .configure("hibernate.cfg.xml")
+                                .buildSessionFactory();
+        } catch (Throwable ex) {
+            System.err.println("SessionFactory creation failed: " + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    public static SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+}
+```
+
+4. Use Hibernate in Main Application
+
+```java
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+
+public class MainApp {
+    public static void main(String[] args) {
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction transaction = session.beginTransaction();
+
+        Student student = new Student();
+        student.setId(1);
+        student.setName("Rahul Mehta");
+        student.setCourse("Computer Science");
+
+        session.save(student); // Save the entity (Hibernate bean)
+        transaction.commit();
+
+        session.close();
+        System.out.println("Student saved successfully!");
+    }
+}
+```
+
+**Explanation:**
+
+- hibernate.cfg.xml — Defines database connection settings and entity mappings.
+
+- @Entity annotation — Declares the Java class as a Hibernate-managed entity (bean).
+
+- SessionFactory — Created using the Hibernate Configuration class to manage sessions.
+
+- Session — Represents a single unit of work and is used to perform CRUD operations on Hibernate beans.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. Is it possible to connect multiple database in a single Java application using Hibernate?
 
 ## Q. Does Hibernate support polymorphism?
