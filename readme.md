@@ -4896,6 +4896,99 @@ public class MainApp {
 
 ## Q. Is it possible to connect multiple database in a single Java application using Hibernate?
 
+**Answer:** Yes, it is possible to connect multiple databases in a single Java application using Hibernate.
+To achieve this, you need to create multiple SessionFactory objects, where each SessionFactory is configured with its own hibernate.cfg.xml file (or programmatic configuration).
+Each SessionFactory acts as a separate connection context to a particular database.
+
+Hibernate does not restrict the number of database connections, as long as they are configured separately.
+
+**How It Works:**
+
+1. Create one hibernate.cfg.xml file for each database.
+
+2. Each configuration file will contain its own:
+
+- Database URL
+
+- Username & Password
+
+- Dialect
+
+- Mapping class details
+
+3. Create multiple SessionFactory instances, each built from a different configuration.
+
+4. Use the appropriate SessionFactory whenever you need to interact with a specific database.
+
+**Example Folder Structure:**
+
+```css
+src/main/resources/
+│
+├── hibernate-db1.cfg.xml
+└── hibernate-db2.cfg.xml
+```
+
+**Example Code:**
+
+```java
+import org.hibernate.SessionFactory;
+import org.hibernate.Session;
+import org.hibernate.cfg.Configuration;
+
+public class MultiDBExample {
+
+    public static void main(String[] args) {
+
+        // SessionFactory for Database 1
+        SessionFactory factory1 = new Configuration()
+                .configure("hibernate-db1.cfg.xml")
+                .buildSessionFactory();
+
+        // SessionFactory for Database 2
+        SessionFactory factory2 = new Configuration()
+                .configure("hibernate-db2.cfg.xml")
+                .buildSessionFactory();
+
+        // Open sessions
+        Session session1 = factory1.openSession();
+        Session session2 = factory2.openSession();
+
+        // Use session1 for DB1 operations
+        session1.beginTransaction();
+        // session1.save(object_for_db1);
+        session1.getTransaction().commit();
+
+        // Use session2 for DB2 operations
+        session2.beginTransaction();
+        // session2.save(object_for_db2);
+        session2.getTransaction().commit();
+
+        // Close resources
+        session1.close();
+        session2.close();
+        factory1.close();
+        factory2.close();
+    }
+}
+```
+
+**Key Points:**
+
+1. Each database must have its own SessionFactory.
+
+2. Entities can be separate for each database or shared, depending on the schema.
+
+3. This approach is commonly used when:
+
+- Applications need to integrate legacy data stored in separate systems.
+
+- Reporting or analytics require data from multiple sources.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. Does Hibernate support polymorphism?
 
 ## Q. How many Hibernate sessions exist at any point of time in an application?
