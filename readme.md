@@ -4991,6 +4991,67 @@ public class MultiDBExample {
 
 ## Q. Does Hibernate support polymorphism?
 
+**Answer:** Yes, Hibernate supports polymorphism.
+In object-oriented programming, polymorphism allows a parent class reference to refer to objects of child classes. Hibernate fully supports this concept when dealing with entity inheritance and queries. This means you can map inheritance hierarchies in your entity model and Hibernate will correctly store and retrieve records based on the actual object type.
+
+**How Hibernate Supports Polymorphism:**
+
+Hibernate allows polymorphism in:
+
+1. Entity Mapping (Class Inheritance)
+Hibernate supports inheritance mapping between entities using:
+
+- SINGLE_TABLE strategy
+
+- JOINED strategy
+
+- TABLE_PER_CLASS strategy
+
+2. Polymorphic Queries
+You can write queries using the parent entity, and Hibernate will automatically return instances of its subclasses.
+
+**Example of Polymorphic Behavior:**
+
+```java
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+public class Vehicle {
+    @Id
+    private int id;
+    private String brand;
+}
+
+@Entity
+public class Car extends Vehicle {
+    private int noOfDoors;
+}
+
+@Entity
+public class Bike extends Vehicle {
+    private String bikeType;
+}
+```
+
+Now, if you query:
+
+```java
+List<Vehicle> vehicles = session.createQuery("from Vehicle", Vehicle.class).list();
+```
+
+Hibernate will return a list containing Car and Bike objects — not just Vehicle objects.
+
+**Why Polymorphism is Useful in Hibernate?:**
+
+| Benefit                  | Description                                                           |
+| ------------------------ | --------------------------------------------------------------------- |
+| Cleaner Model Design     | Lets you use object-oriented inheritance naturally.                   |
+| Flexible Queries         | Write generic queries using parent class and retrieve child entities. |
+| Reduces Code Duplication | Common fields are stored in the base class and reused in subclasses.  |
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How many Hibernate sessions exist at any point of time in an application?
 
 ## Q. What is N+1 SELECT problem in Hibernate? What are some strategies to solve the N+1 SELECT problem in Hibernate?
