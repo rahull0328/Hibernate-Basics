@@ -5054,6 +5054,89 @@ Hibernate will return a list containing Car and Bike objects — not just Vehicl
 
 ## Q. How many Hibernate sessions exist at any point of time in an application?
 
+**Answer:** In Hibernate, the number of sessions that exist at any given point in time depends on how the application is designed and how it manages database interactions.
+
+However, conceptually:
+
+- There is only one SessionFactory per database configuration (it’s a heavy-weight object and thread-safe).
+
+- But there can be multiple Session objects (lightweight and short-lived) created from the same SessionFactory — one per unit of work, request, or transaction.
+
+**Explanation:**
+
+1. SessionFactory
+
+- Created once for the entire application.
+
+- It is thread-safe, meaning it can be shared across threads safely.
+
+- It acts as a factory for creating multiple Session instances.
+
+```java
+SessionFactory factory = new Configuration().configure().buildSessionFactory();
+```
+
+2. Session
+
+- A Session is a lightweight, non-thread-safe object.
+
+- It represents a single conversation or unit of work with the database.
+
+- Each session handles one set of database operations — typically for one HTTP request or transaction.
+
+```java
+Session session = factory.openSession();  // Creates a new session
+```
+
+**Typical Behavior:**
+
+At any given time:
+
+- An application usually has one active Session per user request or transaction.
+
+- Multiple users or threads can each have their own session simultaneously (but all created from the same SessionFactory).
+
+- When the session’s work is done, it should be closed immediately to free resources.
+
+**Example:**
+
+```java
+SessionFactory factory = new Configuration().configure().buildSessionFactory();
+
+// User 1 request
+Session session1 = factory.openSession();
+
+// User 2 request (simultaneous)
+Session session2 = factory.openSession();
+
+// Both sessions exist at the same time but are independent
+session1.beginTransaction();
+// ... some DB operations
+session1.getTransaction().commit();
+session1.close();
+
+session2.beginTransaction();
+// ... some DB operations
+session2.getTransaction().commit();
+session2.close();
+```
+
+Here, two sessions exist concurrently, but both originate from the same SessionFactory.
+
+**Key Points:**
+
+- One SessionFactory per application (per database).
+
+- Multiple Session objects can exist simultaneously — typically one per transaction/request.
+
+- Each Session is independent and should be closed after its work is done.
+
+- A Session should never be shared between threads.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What is N+1 SELECT problem in Hibernate? What are some strategies to solve the N+1 SELECT problem in Hibernate?
 
 ## Q. What is the requirement for a Java object to become a Hibernate entity object?
