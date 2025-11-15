@@ -5139,6 +5139,162 @@ Here, two sessions exist concurrently, but both originate from the same SessionF
 
 ## Q. What is N+1 SELECT problem in Hibernate? What are some strategies to solve the N+1 SELECT problem in Hibernate?
 
+**Answer:** The N+1 SELECT problem happens when an application loads a list of parent entities with one query (the 1) and then — because of lazy associations — issues an additional query for each parent to fetch its child/associated data (the N queries). The result is 1 + N SQL queries instead of a small number of efficient queries, causing large performance overhead (many round-trips to the DB).
+
+**Example scenario (problem):**
+
+```java
+// Query 1: loads 10 customers
+List<Customer> customers = session.createQuery("from Customer").list();
+
+// Then, for each customer, Hibernate loads orders lazily:
+// N queries (one per customer)
+for (Customer c : customers) {
+    System.out.println(c.getOrders().size()); // triggers SELECT for each customer
+}
+```
+
+Total SQL = 1 (customers) + 10 (orders for each customer) = 11 queries — if there were 1000 customers, it would be 1001 queries.
+
+**Strategies to solve / avoid the N+1 problem:**
+
+Below are common strategies with short examples and notes about trade-offs.
+
+1. Join fetch (fetch associations eagerly in the query)
+
+Use JOIN FETCH in HQL/JPQL to load parent and child in the same query.
+
+```java
+// Fetch customers and their orders in one query
+List<Customer> customers = session.createQuery(
+    "select distinct c from Customer c left join fetch c.orders", Customer.class
+).getResultList();
+```
+
+- distinct avoids duplicates when a parent has multiple children.
+
+- Best when you definitely need the associations for this use-case.
+
+- Beware: join-fetching many collections at once can cause Cartesian product explosion.
+
+2. Batch fetching (@BatchSize or hibernate.default_batch_fetch_size)
+
+Let Hibernate load associations in batches instead of one-by-one.
+
+```java
+@Entity
+@BatchSize(size = 10)       // for entity instances
+public class Customer { ... }
+
+@OneToMany(mappedBy="customer")
+@BatchSize(size = 20)       // for the collection
+private Set<Order> orders;
+```
+
+3. @Fetch(FetchMode.SUBSELECT)
+
+For collections, use subselect fetching to load all child collections for a set of parents using one extra query.
+
+```java
+@OneToMany(mappedBy = "customer")
+@Fetch(FetchMode.SUBSELECT)
+private List<Order> orders;
+```
+
+- Produces two queries: one for parents, one subselect to fetch all children for those parents.
+
+- Useful when you load a list of parents and then access collections.
+
+4. Second-level cache / query cache
+
+Cache frequently-read associations or entities so repeated loads do not hit the DB.
+
+```xml
+<property name="hibernate.cache.use_second_level_cache">true</property>
+<property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
+```
+
+```java
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Entity
+public class Product { ... }
+```
+
+- Good for read-heavy data.
+
+- Caches must be used judiciously (staleness, invalidation, memory).
+
+5. DTO / projection queries
+
+Select exactly the columns you need into a DTO to avoid loading entire object graphs and avoid lazy loads.
+
+```java
+List<CustomerDto> dtos = em.createQuery(
+  "select new com.example.CustomerDto(c.id, c.name, o.id, o.total) " +
+  "from Customer c join c.orders o", CustomerDto.class
+).getResultList();
+```
+
+- Very effective when you only need some fields.
+
+- Avoids entity lifecycle overhead and lazy loading.
+
+6. Entity graphs (JPA)
+
+Define a graph of attributes to fetch for a given load, used at runtime.
+
+```java
+@Entity
+@NamedEntityGraph(name = "Customer.orders",
+    attributeNodes = @NamedAttributeNode("orders"))
+public class Customer { ... }
+
+// Usage:
+EntityGraph<?> graph = em.getEntityGraph("Customer.orders");
+Map<String, Object> props = Collections.singletonMap("javax.persistence.fetchgraph", graph);
+Customer c = em.find(Customer.class, id, props);
+```
+
+- Flexible: choose fetch plan at runtime without changing mappings.
+
+7. Explicit initialization before loop
+
+Force initialization of needed associations in one place:
+
+```java
+Hibernate.initialize(customer.getOrders()); // runs one query for that collection
+```
+
+Useful in specific scenarios but you need to control when to initialize.
+
+8. Careful mapping defaults
+
+Avoid globally forcing eager loading in mappings (e.g., FetchType.EAGER) for collections — that can create huge joins and reduce flexibility. Prefer lazy by default and optimize queries per use-case.
+
+9. Profile & measure
+
+Use Hibernate statistics, SQL logging, and a profiler to find N+1 occurrences and confirm fixes. Always measure: a fix that reduces queries might increase data volume and vice versa.
+
+**Trade-offs and guidelines**
+
+- JOIN FETCH: Great for single-use queries; but can create large result sets and duplicates. Use distinct and/or pagination carefully (pagination with join fetch collections is tricky).
+
+- Batch fetching / SUBSELECT: Balanced approach that reduces queries without huge joins.
+
+- DTOs / projections: Most efficient if you only need read-only data for a view.
+
+- Caching: Good for read-heavy workloads, but adds complexity.
+
+- Entity graphs: Best for flexible, per-use-case fetch plans without changing mappings.
+
+**Final note:**
+
+The N+1 SELECT problem is one of the most common ORM performance pitfalls. The correct solution depends on the access pattern — choose between join fetching, batch fetching, subselects, DTOs, or caching based on your use-case and measure the impact.
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What is the requirement for a Java object to become a Hibernate entity object?
 
 ## Q. How do you log SQL queries issued by the Hibernate framework in Java application?
