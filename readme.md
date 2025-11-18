@@ -5297,6 +5297,112 @@ The N+1 SELECT problem is one of the most common ORM performance pitfalls. The c
 
 ## Q. What is the requirement for a Java object to become a Hibernate entity object?
 
+**Answer:** In Hibernate, not every Java class is automatically treated as an entity.
+To make a Java class a Hibernate entity object, it must meet certain requirements so that Hibernate can properly map it to a database table and manage its persistence lifecycle (CRUD operations).
+
+**Key Requirements for a Hibernate Entity:**
+
+1. The Class Must Be Annotated with @Entity
+
+- The @Entity annotation tells Hibernate (and JPA) that this class is a persistent entity.
+
+- Without this annotation, Hibernate will not recognize the class as something that should be mapped to a database table.
+
+```java
+import javax.persistence.Entity;
+
+@Entity
+public class Student {
+    // fields, constructors, getters, setters
+}
+```
+
+2. The Class Must Have a Primary Key (@Id)
+
+- Every entity must have a unique identifier field (primary key) marked with the @Id annotation.
+
+- This allows Hibernate to uniquely identify and track each entity instance.
+
+```java
+import javax.persistence.Id;
+
+@Entity
+public class Student {
+    @Id
+    private int id;
+}
+```
+
+3. The Class Must Have a No-Argument (Default) Constructor
+
+- Hibernate uses reflection to create entity instances — hence, a default constructor is required.
+
+- It can be public or protected, but it must exist.
+
+```java
+public Student() {
+    // default constructor
+}
+```
+
+4. The Class Should Not Be Declared final
+
+- Hibernate creates proxy objects for lazy loading and other functionalities.
+A final class cannot be proxied or subclassed, so avoid using final for entity classes.
+
+5. Fields Should Not Be Declared final
+
+- Hibernate sets entity fields via reflection, so final fields cannot be modified.
+
+6. Each Persistent Field Should Have Getters and Setters
+
+- Hibernate uses either field access or property access (via getters/setters) for reading and writing data.
+
+- It’s a good practice to include getters and setters for all persistent attributes.
+
+```java
+@Entity
+public class Student {
+
+    @Id
+    private int id;
+    private String name;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+}
+```
+
+7. Class Must Be a POJO (Plain Old Java Object)
+
+- It should not depend on any framework-specific base classes or interfaces.
+
+- A simple Java class with private fields and public methods is sufficient.
+
+8. Should Be Serializable (Optional but Recommended)
+
+- Although not mandatory, implementing Serializable is a best practice.
+
+- It helps in caching and transferring entity objects across different layers.
+
+```java
+import java.io.Serializable;
+
+@Entity
+public class Student implements Serializable {
+    @Id
+    private int id;
+    private String name;
+}
+```
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How do you log SQL queries issued by the Hibernate framework in Java application?
 
 ## Q. What is the difference between the transient, persistent and detached state in Hibernate?
