@@ -5513,6 +5513,114 @@ binding parameter [3] as [INTEGER] - 101
 
 ## Q. What is the difference between the transient, persistent and detached state in Hibernate?
 
+**Answer:** In Hibernate, every entity object (Hibernate bean) goes through different lifecycle states depending on how it interacts with the Hibernate Session.
+The three main states are Transient, Persistent, and Detached.
+
+Understanding these states is essential to manage entity objects efficiently and avoid common issues like unnecessary database hits or stale data.
+
+1. Transient State
+
+An object is said to be in a transient state when it is just created using the new keyword and is not associated with any Hibernate Session.
+
+- It does not represent any database record yet.
+
+- Hibernate is not tracking or managing it.
+
+- Any changes made to the object in this state are not saved to the database unless it becomes persistent.
+
+**Example:**
+
+```java
+Student student = new Student();  // Transient object
+student.setId(101);
+student.setName("Rahul");
+student.setCourse("Java");
+```
+
+At this point:
+
+- The student object exists only in memory.
+
+- It is not yet saved in the database.
+
+2. Persistent State
+
+An object enters the persistent state when it is associated with a Hibernate Session.
+In this state, Hibernate starts managing and tracking the object.
+
+- Any change made to the object is automatically synchronized with the database (during transaction commit or flush).
+
+- It represents a record in the database.
+
+**Example:**
+
+```java
+Session session = sessionFactory.openSession();
+Transaction tx = session.beginTransaction();
+
+Student student = new Student();
+student.setId(101);
+student.setName("Rahul");
+student.setCourse("Java");
+
+session.save(student);  // Object becomes persistent
+tx.commit();
+session.close();
+```
+
+At this point:
+
+- The student object is now persistent.
+
+- Hibernate will insert it into the database.
+
+- Any changes made before the transaction commits are automatically reflected in the database.
+
+3. Detached State
+
+An object becomes detached once the Hibernate Session that was managing it is closed or the object is evicted from the session.
+
+- The object still represents a row in the database, but Hibernate no longer tracks it.
+
+- Changes made to the object are not automatically saved unless the object is reattached to a new session.
+
+**Example:**
+
+```java
+Session session = sessionFactory.openSession();
+Student student = session.get(Student.class, 101); // Persistent
+session.close(); // Session closed — student becomes detached
+
+student.setCourse("Spring Boot"); // Change won't be saved automatically
+
+// Reattach the object
+Session newSession = sessionFactory.openSession();
+Transaction tx = newSession.beginTransaction();
+newSession.update(student); // Reattached — becomes persistent again
+tx.commit();
+newSession.close();
+```
+
+At this point:
+
+- student was persistent while the session was open.
+
+- After closing the session, it became detached.
+
+- Once updated and attached to a new session, it becomes persistent again.
+
+**Summary Table:**
+
+| **State**      | **Description**                            | **Associated with Hibernate Session?** | **Database Record Exists?** | **Changes Auto-Saved?** |
+| -------------- | ------------------------------------------ | -------------------------------------- | --------------------------- | ----------------------- |
+| **Transient**  | Newly created object, not saved yet        | ❌ No                                   | ❌ No                        | ❌ No                    |
+| **Persistent** | Managed by Hibernate, synchronized with DB | ✅ Yes                                  | ✅ Yes                       | ✅ Yes                   |
+| **Detached**   | Previously persistent, but session closed  | ❌ No                                   | ✅ Yes                       | ❌ No                    |
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How properties of a class are mapped to the columns of a database table in Hibernate?
 
 ## Q. What is the usage of Configuration Interface in hibernate?
