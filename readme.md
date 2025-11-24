@@ -5623,6 +5623,146 @@ At this point:
 
 ## Q. How properties of a class are mapped to the columns of a database table in Hibernate?
 
+**Answer:** In Hibernate, the properties (fields or attributes) of a Java class are mapped to the columns of a database table using mapping metadata.
+This mapping defines how Hibernate translates Java objects into database rows and vice versa.
+
+There are two main ways to define this mapping:
+
+1. Using Annotations (Preferred in Modern Hibernate/JPA)
+
+2. Using XML Mapping Files (.hbm.xml)
+
+1. Mapping Using Annotations
+
+In this approach, Hibernate uses JPA (Java Persistence API) annotations to map class fields directly to database columns.
+This is the most common and recommended method.
+
+**Example:**
+
+```java
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Column;
+
+@Entity
+@Table(name = "student")
+public class Student {
+
+    @Id
+    @Column(name = "student_id") // maps 'id' field to 'student_id' column
+    private int id;
+
+    @Column(name = "student_name") // maps 'name' field to 'student_name' column
+    private String name;
+
+    @Column(name = "student_course") // maps 'course' field to 'student_course' column
+    private String course;
+
+    // Getters and setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
+}
+```
+
+**Explanation:**
+
+- @Entity → Marks the class as a Hibernate entity (table mapping).
+
+- @Table(name = "student") → Specifies the name of the database table.
+
+- @Id → Marks the primary key column.
+
+- @Column(name = "column_name") → Maps the class field to a specific database column.
+
+If the @Column annotation is not specified, Hibernate automatically assumes that the field name and column name are the same.
+
+2. Mapping Using XML Configuration (.hbm.xml)
+
+In older Hibernate versions or XML-based projects, mappings are defined externally in an .hbm.xml file.
+
+**Example: Student.hbm.xml:**
+
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="com.example.Student" table="student">
+
+        <id name="id" column="student_id">
+            <generator class="increment"/>
+        </id>
+
+        <property name="name" column="student_name"/>
+        <property name="course" column="student_course"/>
+
+    </class>
+</hibernate-mapping>
+```
+
+Explanation:
+
+- <class> → Maps the Java class to the table.
+
+- <id> → Maps the primary key field.
+
+- <property> → Maps class properties to database columns.
+
+Then include this mapping file in hibernate.cfg.xml:
+
+```xml
+<mapping resource="com/example/Student.hbm.xml"/>
+```
+
+How Hibernate Uses This Mapping
+
+When you perform CRUD operations using Hibernate:
+
+- It uses the mapping configuration to determine which table and column correspond to each class and property.
+
+- Hibernate automatically converts the object fields into SQL queries.
+
+- This ensures object-oriented code interacts seamlessly with relational databases.
+
+**Example:**
+
+```java
+Student s = new Student();
+s.setId(1);
+s.setName("Rahul");
+s.setCourse("Java");
+
+session.save(s);
+```
+
+Hibernate generates:
+
+```sql
+INSERT INTO 
+student (student_id, student_name, student_course) 
+VALUES (1, 'Rahul', 'Java');
+```
+
+**Summary:**
+
+| **Approach**                 | **Description**                                   | **Configuration File / Annotation**   |
+| ---------------------------- | ------------------------------------------------- | ------------------------------------- |
+| **Annotation-Based Mapping** | Uses JPA annotations directly in the entity class | `@Entity`, `@Table`, `@Column`, `@Id` |
+| **XML-Based Mapping**        | Uses external XML file to define mappings         | `*.hbm.xml`                           |
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. What is the usage of Configuration Interface in hibernate?
 
 ## Q. How can we use new custom interfaces to enhance functionality of built-in interfaces of hibernate?
