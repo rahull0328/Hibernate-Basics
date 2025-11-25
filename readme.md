@@ -5765,6 +5765,93 @@ VALUES (1, 'Rahul', 'Java');
 
 ## Q. What is the usage of Configuration Interface in hibernate?
 
+**Answer:** In Hibernate, the Configuration interface is one of the most important components of the framework.
+It is used to configure Hibernate, bootstrap the SessionFactory, and load mapping information (either from annotations or XML mapping files).
+Essentially, the Configuration interface acts as the starting point for setting up a Hibernate application.
+
+**What Does the Configuration Interface Do?**
+
+The Configuration interface is responsible for:
+
+1. Loading Hibernate Configuration Files
+
+- It reads settings from the hibernate.cfg.xml file (or other configuration files).
+
+- These settings include database connection details, dialect, mappings, and other Hibernate properties.
+
+2. Loading Mapping Information
+
+- It loads mappings for entity classes — either defined in XML mapping files (.hbm.xml) or annotated classes.
+
+3. Creating SessionFactory
+
+- After configuration and mappings are loaded, the Configuration interface is used to build the SessionFactory, which is used to open sessions and interact with the database.
+
+**Example: Using Configuration Interface**
+
+```java
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class HibernateExample {
+    public static void main(String[] args) {
+        // Step 1: Create Configuration object
+        Configuration config = new Configuration();
+
+        // Step 2: Load configuration file
+        config.configure("hibernate.cfg.xml");
+
+        // Step 3: Build SessionFactory
+        SessionFactory sessionFactory = config.buildSessionFactory();
+
+        // Step 4: Open a session
+        Session session = sessionFactory.openSession();
+
+        // Step 5: Perform transaction
+        Transaction tx = session.beginTransaction();
+
+        // Example entity object
+        Student s1 = new Student();
+        s1.setId(1);
+        s1.setName("Rahul Mehta");
+        s1.setCourse("Hibernate Basics");
+
+        session.save(s1);
+
+        tx.commit();
+        session.close();
+        sessionFactory.close();
+    }
+}
+```
+
+**Common Methods of Configuration Interface**
+
+| **Method**                                | **Description**                                       |
+| ----------------------------------------- | ----------------------------------------------------- |
+| `configure()`                             | Loads default `hibernate.cfg.xml` from the classpath. |
+| `configure(String resource)`              | Loads a specific configuration file.                  |
+| `addAnnotatedClass(Class annotatedClass)` | Adds an annotated entity class to the configuration.  |
+| `addResource(String resourceName)`        | Adds an XML mapping file (e.g., `Student.hbm.xml`).   |
+| `addPackage(String packageName)`          | Adds a package to be scanned for entities.            |
+| `buildSessionFactory()`                   | Creates and returns a `SessionFactory` object.        |
+
+**Explanation:**
+
+| **Step** | **Action**                                                      | **Description**                                               |
+| -------- | --------------------------------------------------------------- | ------------------------------------------------------------- |
+| 1        | `Configuration config = new Configuration();`                   | Creates a Configuration instance.                             |
+| 2        | `config.configure("hibernate.cfg.xml");`                        | Loads database settings and mappings from the config file.    |
+| 3        | `SessionFactory sessionFactory = config.buildSessionFactory();` | Builds the SessionFactory based on the loaded configuration.  |
+| 4        | `Session session = sessionFactory.openSession();`               | Opens a new Hibernate session for performing CRUD operations. |
+
+
+<div align="right">
+    <b><a href="#">↥ back to top</a></b>
+</div>
+
 ## Q. How can we use new custom interfaces to enhance functionality of built-in interfaces of hibernate?
 
 ## Q. What are POJOs and what is their significance?
